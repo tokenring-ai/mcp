@@ -1,0 +1,17 @@
+{
+ "name": "@tokenring-ai/mcp",
+ "version": "0.1.0",
+ "description": "MCP (Model Context Protocol) client for Token Ring",
+ "dependencies": {
+  "@tokenring-ai/agent": "0.1.0",
+  "@modelcontextprotocol/sdk": "^1.18.2",
+  "ai": "^5.0.55",
+  "zod": "^4.0.17"
+ },
+ "exports": {
+  ".": "./index.ts",
+  "./*": "./*.ts"
+ },
+ "license": "MIT",
+ "type": "module"
+}
