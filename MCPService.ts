@@ -43,8 +43,8 @@ export default class MCPService implements TokenRingService {
 
     for (const toolName in tools) {
       const tool = tools[toolName];
-      team.tools.register(`${name}/toolName`, {
-        name: `mcp/${toolName}`,
+      team.tools.register(`${name}/${toolName}`, {
+        name: `${name}/${toolName}`,
         tool: {
           inputSchema: tool.inputSchema as any,
           execute: tool.execute,

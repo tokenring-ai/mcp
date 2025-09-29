@@ -70,6 +70,19 @@ Registers an MCP server with the TokenRing agent team.
 - `config`: Transport configuration object
 - `team`: AgentTeam instance to register tools with
 
+## Future Ideas (Brainstorm)
+
+- **Enhanced Transport Options**: Add TLS support, custom headers, and authentication for HTTP/SSE transports.
+- **Dynamic Tool Discovery**: Implement hot‑reloading of tools when the MCP server updates its capabilities.
+- **Tool Versioning & Namespacing**: Allow multiple versions of the same tool to coexist, with versioned registration keys.
+- **Metrics & Observability**: Export Prometheus metrics (e.g., tool call latency, error rates) and integrate with existing monitoring.
+- **Health Checks & Auto‑Reconnect**: Periodic health probes for MCP servers with automatic reconnection logic.
+- **Caching Layer**: Cache tool definitions and results to reduce latency for frequently used tools.
+- **Declarative Configuration**: Support a JSON/YAML config file to declare multiple MCP servers and their transports.
+- **Integration with TokenRing Agent Extensions**: Provide hooks for agents to customize tool execution (e.g., pre‑processing, post‑processing).
+- **CLI Utility**: A command‑line tool to list, test, and manage registered MCP tools.
+- **Comprehensive Documentation**: Expanded guides, API reference, and example projects for each transport type.
+
 ## License
 
 MIT
