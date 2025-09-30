@@ -1,8 +1,7 @@
 import {Transport} from "@modelcontextprotocol/sdk/shared/transport.js";
-import {Agent, AgentTeam} from "@tokenring-ai/agent";
+import {AgentTeam} from "@tokenring-ai/agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
 import {experimental_createMCPClient} from "ai";
-import type {Tool} from "ai";
 
 
 import {StdioClientTransport, StdioServerParameters} from '@modelcontextprotocol/sdk/client/stdio.js';
@@ -19,7 +18,6 @@ export type MCPTransportConfig =
 export default class MCPService implements TokenRingService {
   name = "MCPService";
   description = "Service for MCP (Model Context Protocol) servers";
-  protected agent!: Agent;
 
   async register(name: string, config: MCPTransportConfig, team: AgentTeam): Promise<void> {
     let transport: Transport;
