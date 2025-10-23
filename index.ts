@@ -8,7 +8,7 @@ export const MCPConfigSchema = z.object({
   transports: z.record(z.string(), z.looseObject({type: z.string()}))
 }).optional();
 
-export const packageInfo: TokenRingPackage = {
+export default {
   name: packageJSON.name,
   version: packageJSON.version,
   description: packageJSON.description,
@@ -24,6 +24,6 @@ export const packageInfo: TokenRingPackage = {
       }
     }
   }
-};
+} as TokenRingPackage;
 
 export {default as MCPService} from "./MCPService.ts";
