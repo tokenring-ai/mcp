@@ -6,6 +6,7 @@ import {StreamableHTTPClientTransport} from '@modelcontextprotocol/sdk/client/st
 import {Transport} from "@modelcontextprotocol/sdk/shared/transport.js";
 import {AgentTeam} from "@tokenring-ai/agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
+import {AIService} from "@tokenring-ai/ai-client";
 import {experimental_createMCPClient} from "ai";
 import {z} from "zod";
 
@@ -24,6 +25,7 @@ export default class MCPService implements TokenRingService {
   description = "Service for MCP (Model Context Protocol) servers";
 
   async register(name: string, config: MCPTransportConfig, team: AgentTeam): Promise<void> {
+    const aiService = await team.requireService(AIService);
     let transport: Transport;
     switch (config.type) {
       case "stdio":
@@ -45,7 +47,7 @@ export default class MCPService implements TokenRingService {
 
     for (const toolName in tools) {
       const tool = tools[toolName];
-      team.tools.register(`${name}/${toolName}`, {
+      aiService.registerTool(`${name}/${toolName}`, {
         name: `${name}/${toolName}`,
         tool: {
           inputSchema: tool.inputSchema as any,
