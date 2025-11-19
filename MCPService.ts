@@ -1,3 +1,4 @@
+import {experimental_createMCPClient} from '@ai-sdk/mcp';
 import {SSEClientTransport} from '@modelcontextprotocol/sdk/client/sse.js';
 
 
@@ -6,8 +7,7 @@ import {StreamableHTTPClientTransport} from '@modelcontextprotocol/sdk/client/st
 import {Transport} from "@modelcontextprotocol/sdk/shared/transport.js";
 import {AgentTeam} from "@tokenring-ai/agent";
 import {TokenRingService} from "@tokenring-ai/agent/types";
-import {AIService} from "@tokenring-ai/ai-client";
-import {experimental_createMCPClient} from "ai";
+import {ChatService} from "@tokenring-ai/chat";
 import {z} from "zod";
 
 
@@ -25,7 +25,7 @@ export default class MCPService implements TokenRingService {
   description = "Service for MCP (Model Context Protocol) servers";
 
   async register(name: string, config: MCPTransportConfig, team: AgentTeam): Promise<void> {
-    const aiService = await team.requireService(AIService);
+    const chatService = await team.requireService(ChatService);
     let transport: Transport;
     switch (config.type) {
       case "stdio":
@@ -35,6 +35,7 @@ export default class MCPService implements TokenRingService {
         transport = new SSEClientTransport(new URL(config.url));
         break;
       case "http":
+
         transport = new StreamableHTTPClientTransport(new URL(config.url));
         break;
       default:
@@ -42,12 +43,12 @@ export default class MCPService implements TokenRingService {
     }
 
 
-    const client = await experimental_createMCPClient({ transport });
+    const client = await experimental_createMCPClient({transport});
     const tools = await client.tools();
 
     for (const toolName in tools) {
       const tool = tools[toolName];
-      aiService.registerTool(`${name}/${toolName}`, {
+      chatService.registerTool(`${name}/${toolName}`, {
         name: `${name}/${toolName}`,
         tool: {
           inputSchema: tool.inputSchema as any,

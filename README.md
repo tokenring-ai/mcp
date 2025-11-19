@@ -4,7 +4,8 @@ MCP (Model Context Protocol) client integration for the TokenRing ecosystem.
 
 ## Overview
 
-This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the Model Context Protocol.
+This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external
+tools and resources through the Model Context Protocol.
 
 ## Features
 
@@ -34,6 +35,7 @@ await mcpService.register('myserver', {
 ### Transport Types
 
 #### Stdio Transport
+
 ```typescript
 {
   type: 'stdio',
@@ -43,6 +45,7 @@ await mcpService.register('myserver', {
 ```
 
 #### SSE Transport
+
 ```typescript
 {
   type: 'sse',
@@ -51,6 +54,7 @@ await mcpService.register('myserver', {
 ```
 
 #### HTTP Transport
+
 ```typescript
 {
   type: 'http',
@@ -74,12 +78,15 @@ Registers an MCP server with the TokenRing agent team.
 
 - **Enhanced Transport Options**: Add TLS support, custom headers, and authentication for HTTP/SSE transports.
 - **Dynamic Tool Discovery**: Implement hot‑reloading of tools when the MCP server updates its capabilities.
-- **Tool Versioning & Namespacing**: Allow multiple versions of the same tool to coexist, with versioned registration keys.
-- **Metrics & Observability**: Export Prometheus metrics (e.g., tool call latency, error rates) and integrate with existing monitoring.
+- **Tool Versioning & Namespacing**: Allow multiple versions of the same tool to coexist, with versioned registration
+  keys.
+- **Metrics & Observability**: Export Prometheus metrics (e.g., tool call latency, error rates) and integrate with
+  existing monitoring.
 - **Health Checks & Auto‑Reconnect**: Periodic health probes for MCP servers with automatic reconnection logic.
 - **Caching Layer**: Cache tool definitions and results to reduce latency for frequently used tools.
 - **Declarative Configuration**: Support a JSON/YAML config file to declare multiple MCP servers and their transports.
-- **Integration with TokenRing Agent Extensions**: Provide hooks for agents to customize tool execution (e.g., pre‑processing, post‑processing).
+- **Integration with TokenRing Agent Extensions**: Provide hooks for agents to customize tool execution (e.g.,
+  pre‑processing, post‑processing).
 - **CLI Utility**: A command‑line tool to list, test, and manage registered MCP tools.
 - **Comprehensive Documentation**: Expanded guides, API reference, and example projects for each transport type.
 

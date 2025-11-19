@@ -4,9 +4,9 @@
  "description": "MCP (Model Context Protocol) client for Token Ring",
  "dependencies": {
   "@tokenring-ai/agent": "0.1.0",
-  "@modelcontextprotocol/sdk": "^1.18.2",
-  "ai": "^5.0.59",
-  "zod": "^4.1.11"
+  "@modelcontextprotocol/sdk": "^1.22.0",
+  "ai": "^5.0.95",
+  "zod": "^4.1.12"
  },
  "exports": {
   ".": "./index.ts",
