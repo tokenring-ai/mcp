@@ -5,7 +5,7 @@
  "dependencies": {
   "@tokenring-ai/agent": "0.1.0",
   "@modelcontextprotocol/sdk": "^1.22.0",
-  "ai": "^5.0.95",
+  "ai": "^5.0.98",
   "zod": "^4.1.12"
  },
  "exports": {
