@@ -1,4 +1,5 @@
-import {AgentTeam, TokenRingPackage} from "@tokenring-ai/agent";
+import TokenRingApp from "@tokenring-ai/app";
+import {TokenRingPlugin} from "@tokenring-ai/app";
 import {z} from "zod";
 import MCPService from "./MCPService.ts";
 
@@ -13,17 +14,17 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
 
-  async install(agentTeam: AgentTeam) {
-    const config = agentTeam.getConfigSlice('mcp', MCPConfigSchema);
+  async install(app: TokenRingApp) {
+    const config = app.getConfigSlice('mcp', MCPConfigSchema);
     if (config) {
       const mcpService = new MCPService();
-      agentTeam.addServices(mcpService);
+      app.addServices(mcpService);
 
       for (const name in config.transports) {
-        await mcpService.register(name, config.transports[name] as any, agentTeam);
+        await mcpService.register(name, config.transports[name] as any, app);
       }
     }
   }
-} as TokenRingPackage;
+} as TokenRingPlugin;
 
 export {default as MCPService} from "./MCPService.ts";

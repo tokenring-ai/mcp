@@ -5,9 +5,9 @@ import {SSEClientTransport} from '@modelcontextprotocol/sdk/client/sse.js';
 import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
 import {StreamableHTTPClientTransport} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import {Transport} from "@modelcontextprotocol/sdk/shared/transport.js";
-import {AgentTeam} from "@tokenring-ai/agent";
-import {TokenRingService} from "@tokenring-ai/agent/types";
+import TokenRingApp from "@tokenring-ai/app";
 import {ChatService} from "@tokenring-ai/chat";
+import {TokenRingService} from "@tokenring-ai/app/types";
 import {z} from "zod";
 
 
@@ -24,8 +24,8 @@ export default class MCPService implements TokenRingService {
   name = "MCPService";
   description = "Service for MCP (Model Context Protocol) servers";
 
-  async register(name: string, config: MCPTransportConfig, team: AgentTeam): Promise<void> {
-    const chatService = await team.requireService(ChatService);
+  async register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void> {
+    const chatService = await app.requireService(ChatService);
     let transport: Transport;
     switch (config.type) {
       case "stdio":
