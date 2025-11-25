@@ -4,32 +4,69 @@ MCP (Model Context Protocol) client integration for the TokenRing ecosystem.
 
 ## Overview
 
-This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external
-tools and resources through the Model Context Protocol.
+This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the Model Context Protocol. It serves as a TokenRing plugin that automatically registers MCP server tools with the chat service.
 
 ## Features
 
 - **Multiple transport types**: Support for stdio, SSE, and HTTP transports
 - **Automatic tool registration**: MCP server tools are automatically registered with TokenRing agents
 - **Seamless integration**: Works with existing TokenRing agent architecture
+- **Plugin-based architecture**: Integrates as a TokenRing plugin with automatic service registration
+
+## Installation
+
+```bash
+npm install @tokenring-ai/mcp
+```
+
+## Dependencies
+
+- `@tokenring-ai/agent`: ^0.1.0
+- `@modelcontextprotocol/sdk`: ^1.22.0
+- `ai`: ^5.0.101
+- `zod`: ^4.1.13
 
 ## Usage
 
-### Basic Setup
+### As a TokenRing Plugin
+
+The package is designed to work as a TokenRing plugin. Configure it in your application:
+
+```typescript
+// In your TokenRing app configuration
+{
+  plugins: [
+    {
+      name: "@tokenring-ai/mcp",
+      config: {
+        mcp: {
+          transports: {
+            myserver: {
+              type: "stdio",
+              // stdio-specific config
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+### Manual Usage
 
 ```typescript
 import { MCPService } from '@tokenring-ai/mcp';
-import { AgentTeam } from '@tokenring-ai/agent';
+import TokenRingApp from '@tokenring-ai/app';
 
 const mcpService = new MCPService();
-const team = new AgentTeam();
+const app = new TokenRingApp();
 
 // Register an MCP server with stdio transport
 await mcpService.register('myserver', {
   type: 'stdio',
-  command: 'node',
-  args: ['path/to/mcp-server.js']
-}, team);
+  // stdio configuration will be passed directly to StdioClientTransport
+}, app);
 ```
 
 ### Transport Types
@@ -39,8 +76,7 @@ await mcpService.register('myserver', {
 ```typescript
 {
   type: 'stdio',
-  command: 'node',
-  args: ['server.js']
+  // Configuration passed directly to @modelcontextprotocol/sdk/client/stdio.js
 }
 ```
 
@@ -64,32 +100,63 @@ await mcpService.register('myserver', {
 
 ## API
 
+### Exports
+
+- `default`: TokenRing plugin object
+- `MCPService`: Service class for manual MCP server registration
+- `MCPConfigSchema`: Zod schema for plugin configuration
+- `MCPTransportConfigSchema`: Zod schema for transport configuration
+
 ### MCPService
 
-#### `register(name: string, config: MCPTransportConfig, team: AgentTeam): Promise<void>`
+#### `register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void>`
 
-Registers an MCP server with the TokenRing agent team.
+Registers an MCP server with the TokenRing application.
 
 - `name`: Unique identifier for the MCP server
 - `config`: Transport configuration object
-- `team`: AgentTeam instance to register tools with
+- `app`: TokenRingApp instance to register tools with
 
-## Future Ideas (Brainstorm)
+#### Properties
 
-- **Enhanced Transport Options**: Add TLS support, custom headers, and authentication for HTTP/SSE transports.
-- **Dynamic Tool Discovery**: Implement hot‑reloading of tools when the MCP server updates its capabilities.
-- **Tool Versioning & Namespacing**: Allow multiple versions of the same tool to coexist, with versioned registration
-  keys.
-- **Metrics & Observability**: Export Prometheus metrics (e.g., tool call latency, error rates) and integrate with
-  existing monitoring.
-- **Health Checks & Auto‑Reconnect**: Periodic health probes for MCP servers with automatic reconnection logic.
-- **Caching Layer**: Cache tool definitions and results to reduce latency for frequently used tools.
-- **Declarative Configuration**: Support a JSON/YAML config file to declare multiple MCP servers and their transports.
-- **Integration with TokenRing Agent Extensions**: Provide hooks for agents to customize tool execution (e.g.,
-  pre‑processing, post‑processing).
-- **CLI Utility**: A command‑line tool to list, test, and manage registered MCP tools.
-- **Comprehensive Documentation**: Expanded guides, API reference, and example projects for each transport type.
+- `name`: "MCPService"
+- `description`: "Service for MCP (Model Context Protocol) servers"
+
+### Configuration Schemas
+
+#### MCPConfigSchema
+
+```typescript
+z.object({
+  transports: z.record(z.string(), z.looseObject({type: z.string()}))
+}).optional()
+```
+
+#### MCPTransportConfigSchema
+
+```typescript
+z.discriminatedUnion("type", [
+  z.object({type: z.literal("stdio")}).passthrough(),
+  z.object({type: z.literal("sse"), url: z.string()}).passthrough(),
+  z.object({type: z.literal("http"), url: z.string()}).passthrough(),
+]);
+```
+
+## How It Works
+
+1. The plugin installs itself into the TokenRing application
+2. For each configured transport, it creates an appropriate MCP client transport
+3. It connects to the MCP server and retrieves available tools
+4. Each tool is registered with the TokenRing chat service using the format `{serverName}/{toolName}`
+5. Registered tools become available to TokenRing agents for use
+
+## Package Information
+
+- **Name**: `@tokenring-ai/mcp`
+- **Version**: `0.1.0`
+- **License**: MIT
+- **Type**: Module
 
 ## License
 
-MIT
+MIT - Copyright (c) 2025 Mark Dierolf
