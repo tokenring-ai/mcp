@@ -13,8 +13,8 @@ import {z} from "zod";
 
 export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
   z.object({type: z.literal("stdio")}).passthrough(),
-  z.object({type: z.literal("sse"), url: z.string()}).passthrough(),
-  z.object({type: z.literal("http"), url: z.string()}).passthrough(),
+  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
+  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
 ]);
 
 export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
