@@ -14,6 +14,8 @@ This package provides MCP client functionality to connect TokenRing agents with 
 - **Plugin-based architecture**: Integrates as a TokenRing plugin with automatic service registration
 - **Zod schema validation**: Comprehensive configuration validation with detailed error messages
 - **Type-safe configuration**: Strong typing for all configuration options
+- **Error handling**: Proper error handling for transport connections and tool registration
+- **Tool schema preservation**: Maintains original MCP tool schemas during registration
 
 ## Installation
 
@@ -147,7 +149,7 @@ await mcpService.register('apiserver', {
 {
   type: 'http',
   url: 'http://localhost:3001/api/mcp', // Required: HTTP endpoint URL
-  method?: 'GET' | 'POST' | 'PUT',     // Optional: HTTP method (default: GET)
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE',     // Optional: HTTP method (default: GET)
   headers?: Record<string, string>,    // Optional: Custom headers
   timeout?: number                   // Optional: Connection timeout in ms
 }
@@ -215,6 +217,8 @@ type MCPTransportConfig =
 4. Each tool is registered with the TokenRing chat service using the format `{serverName}/{toolName}`
 5. Registered tools become available to TokenRing agents for use
 6. Tools are automatically integrated with the chat service's tool registry
+7. The package preserves the original MCP tool schemas during registration
+8. Error handling is provided for transport connections and tool retrieval
 
 ## Configuration Examples
 
@@ -279,6 +283,8 @@ The package includes comprehensive tests covering:
 - Tool registration
 - Error scenarios
 - Integration with TokenRing services
+- Concurrent operations
+- Tool schema preservation
 
 Run tests with:
 
