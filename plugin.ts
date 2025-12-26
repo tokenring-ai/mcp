@@ -1,9 +1,13 @@
-import TokenRingApp from "@tokenring-ai/app";
 import {TokenRingPlugin} from "@tokenring-ai/app";
+import {z} from "zod";
 import {MCPConfigSchema} from "./index.ts";
 import MCPService from "./MCPService.ts";
 
 import packageJSON from './package.json' with {type: 'json'};
+
+const packageConfigSchema = z.object({
+  mcp: MCPConfigSchema.optional(),
+});
 
 
 export default {
@@ -11,15 +15,16 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
 
-  async install(app: TokenRingApp) {
-    const config = app.getConfigSlice('mcp', MCPConfigSchema);
-    if (config) {
+  async install(app, config) {
+    // const config = app.getConfigSlice('mcp', MCPConfigSchema);
+    if (config.mcp) {
       const mcpService = new MCPService();
       app.addServices(mcpService);
 
-      for (const name in config.transports) {
-        await mcpService.register(name, config.transports[name] as any, app);
+      for (const name in config.mcp.transports) {
+        await mcpService.register(name, config.mcp.transports[name] as any, app);
       }
     }
-  }
-} satisfies TokenRingPlugin;
+  },
+  config: packageConfigSchema
+} satisfies TokenRingPlugin<typeof packageConfigSchema>;
