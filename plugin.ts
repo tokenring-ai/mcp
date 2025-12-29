@@ -16,7 +16,6 @@ export default {
   description: packageJSON.description,
 
   async install(app, config) {
-    // const config = app.getConfigSlice('mcp', MCPConfigSchema);
     if (config.mcp) {
       const mcpService = new MCPService();
       app.addServices(mcpService);
