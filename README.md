@@ -1,21 +1,17 @@
 # @tokenring-ai/mcp
 
-MCP (Model Context Protocol) client integration for the TokenRing ecosystem.
-
 ## Overview
-
-This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the Model Context Protocol. It serves as a TokenRing plugin that automatically registers MCP server tools with the chat service.
+MCP (Model Context Protocol) client integration for the TokenRing ecosystem. This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the Model Context Protocol. It serves as a TokenRing plugin that automatically registers MCP server tools with the chat service.
 
 ## Features
-
-- **Multiple transport types**: Support for stdio, SSE, and HTTP transports
-- **Automatic tool registration**: MCP server tools are automatically registered with TokenRing agents
-- **Seamless integration**: Works with existing TokenRing agent architecture
-- **Plugin-based architecture**: Integrates as a TokenRing plugin with automatic service registration
-- **Zod schema validation**: Comprehensive configuration validation with detailed error messages
-- **Type-safe configuration**: Strong typing for all configuration options
-- **Error handling**: Proper error handling for transport connections and tool registration
-- **Tool schema preservation**: Maintains original MCP tool schemas during registration
+- **Multiple Transport Types**: Support for stdio, SSE, and HTTP transports
+- **Automatic Tool Registration**: MCP server tools are automatically registered with TokenRing agents
+- **Seamless Integration**: Works with existing TokenRing agent architecture
+- **Plugin-Based Architecture**: Integrates as a TokenRing plugin with automatic service registration
+- **Zod Schema Validation**: Comprehensive configuration validation with detailed error messages
+- **Type-Safe Configuration**: Strong typing for all configuration options
+- **Error Handling**: Proper error handling for transport connections and tool registration
+- **Tool Schema Preservation**: Maintains original MCP tool schemas during registration
 
 ## Installation
 
@@ -23,21 +19,59 @@ This package provides MCP client functionality to connect TokenRing agents with 
 bun install @tokenring-ai/mcp
 ```
 
-## Dependencies
+## Core Components/API
 
-- `@tokenring-ai/app`: ^0.2.0
-- `@tokenring-ai/chat`: ^0.2.0
-- `@tokenring-ai/agent`: ^0.2.0
-- `@ai-sdk/mcp`: ^0.0.12
-- `@modelcontextprotocol/sdk`: ^1.25.0
-- `ai`: ^5.0.113
-- `zod`: ^4.1.13
+### MCPService
 
-## Usage
+The main service class for manual MCP server registration.
+
+#### Constructor
+```typescript
+new MCPService()
+```
+
+#### Properties
+- `name: "MCPService"`: Service identifier
+- `description: "Service for MCP (Model Context Protocol) servers"`: Service description
+
+#### Methods
+- `register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void>`
+  - Registers an MCP server with the TokenRing application
+  - `name`: Unique identifier for the MCP server
+  - `config`: Transport configuration object
+  - `app`: TokenRingApp instance to register tools with
+
+### Configuration Schemas
+
+#### MCPConfigSchema
+```typescript
+z.object({
+  transports: z.record(z.string(), MCPTransportConfigSchema)
+}).optional();
+```
+
+#### MCPTransportConfigSchema
+```typescript
+z.discriminatedUnion("type", [
+  z.object({type: z.literal("stdio")}).passthrough(),
+  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
+  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
+]);
+```
+
+#### MCPTransportConfig Type
+```typescript
+type MCPTransportConfig = 
+  | { type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string }
+  | { type: "sse"; url: string; headers?: Record<string, string>; timeout?: number }
+  | { type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number };
+```
+
+## Usage Examples
 
 ### As a TokenRing Plugin
 
-The package is designed to work as a TokenRing plugin. Configure it in your application:
+Configure the MCP package in your TokenRing application:
 
 ```typescript
 // In your TokenRing app configuration
@@ -128,7 +162,7 @@ await mcpService.register('apiserver', {
   command: 'mcp-server',           // Required: Command to execute
   args?: string[],                // Optional: Command arguments
   env?: Record<string, string>,   // Optional: Environment variables
-  cwd?: string                   // Optional: Working directory
+  cwd?: string                    // Optional: Working directory
 }
 ```
 
@@ -139,7 +173,7 @@ await mcpService.register('apiserver', {
   type: 'sse',
   url: 'http://localhost:3000/sse', // Required: SSE endpoint URL
   headers?: Record<string, string>, // Optional: Custom headers
-  timeout?: number               // Optional: Connection timeout in ms
+  timeout?: number                // Optional: Connection timeout in ms
 }
 ```
 
@@ -155,72 +189,7 @@ await mcpService.register('apiserver', {
 }
 ```
 
-## API
-
-### Exports
-
-- `default`: TokenRing plugin object
-- `MCPService`: Service class for manual MCP server registration
-- `MCPConfigSchema`: Zod schema for plugin configuration
-- `MCPTransportConfigSchema`: Zod schema for transport configuration
-- `MCPTransportConfig`: Type alias for transport configuration
-
-### MCPService
-
-#### `register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void>`
-
-Registers an MCP server with the TokenRing application.
-
-- `name`: Unique identifier for the MCP server
-- `config`: Transport configuration object
-- `app`: TokenRingApp instance to register tools with
-
-#### Properties
-
-- `name`: "MCPService"
-- `description`: "Service for MCP (Model Context Protocol) servers"
-
-### Configuration Schemas
-
-#### MCPConfigSchema
-
-```typescript
-z.object({
-  transports: z.record(z.string(), MCPTransportConfigSchema)
-}).optional();
-```
-
-#### MCPTransportConfigSchema
-
-```typescript
-z.discriminatedUnion("type", [
-  z.object({type: z.literal("stdio")}).passthrough(),
-  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
-  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
-]);
-```
-
-### MCPTransportConfig Type
-
-```typescript
-type MCPTransportConfig = 
-  | { type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string }
-  | { type: "sse"; url: string; headers?: Record<string, string>; timeout?: number }
-  | { type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number };
-```
-
-## How It Works
-
-1. The plugin installs itself into the TokenRing application
-2. For each configured transport, it creates an appropriate MCP client transport
-3. It connects to the MCP server and retrieves available tools
-4. Each tool is registered with the TokenRing chat service using the format `{serverName}/{toolName}`
-5. Registered tools become available to TokenRing agents for use
-6. Tools are automatically integrated with the chat service's tool registry
-7. The package preserves the original MCP tool schemas during registration
-8. Error handling is provided for transport connections and tool retrieval
-
-## Configuration Examples
+## Configuration
 
 ### Minimal Configuration
 
@@ -274,7 +243,35 @@ type MCPTransportConfig =
 }
 ```
 
-## Testing
+## Error Handling
+
+The package provides comprehensive error handling:
+
+- **Invalid Configuration**: Throws clear validation errors for invalid transport configurations
+- **Transport Failures**: Handles connection errors with descriptive messages
+- **Tool Registration Failures**: Returns errors when tools cannot be registered with chat service
+- **Service Dependencies**: Checks for required services before registration
+
+## Integration
+
+### TokenRing Plugin Integration
+
+The package automatically integrates with the TokenRing application framework:
+
+- Registers MCPService with the application
+- Automatically handles plugin installation and configuration
+- Integrates with the chat service for tool registration
+
+### Agent Integration
+
+```typescript
+// Agents can access MCP services directly
+const mcpService = agent.requireServiceByType(MCPService);
+```
+
+## Development
+
+### Testing
 
 The package includes comprehensive tests covering:
 
@@ -292,14 +289,13 @@ Run tests with:
 bun run test
 ```
 
-## Package Information
+### Contribution Guidelines
 
-- **Name**: `@tokenring-ai/mcp`
-- **Version**: `0.2.0`
-- **License**: MIT
-- **Type**: Module
-- **Exports**: `./*` pattern for all TypeScript files
+- Follow existing code style and patterns
+- Add unit tests for new functionality
+- Update documentation for new features
+- Ensure all changes work with TokenRing agent framework
 
 ## License
 
-MIT - Copyright (c) 2025 Mark Dierolf
+MIT License - see [LICENSE](./LICENSE) file for details.
