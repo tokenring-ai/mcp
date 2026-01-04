@@ -4,6 +4,7 @@ import plugin from './plugin';
 import MCPService from './MCPService';
 import { MCPConfigSchema } from './index';
 import { experimental_createMCPClient } from '@ai-sdk/mcp';
+import { ChatService } from '@tokenring-ai/chat';
 
 const mockedMcp = vi.hoisted(() => ({
   experimental_createMCPClient: vi.fn(),
@@ -34,9 +35,6 @@ vi.mock('@ai-sdk/mcp', () => mockedMcp);
 vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => mockedSSE);
 vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => mockedStdio);
 vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js', () => mockedHttp);
-vi.mock('@tokenring-ai/chat', () => ({
-  ChatService: 'ChatService',
-}));
 
 // Reference mocked transport constructors for testing
 const mockTransportConstructors = {
@@ -55,13 +53,13 @@ describe('MCP Integration Tests', () => {
     // Create mock app
     mockApp = createTestingApp();
     
-    // Mock ChatService
+    // Mock ChatService instance with proper methods
     mockChatService = {
       name: 'ChatService',
       registerTool: vi.fn(),
     };
 
-    // Mock app methods
+    // Mock app methods - use object with methods, not functions
     mockApp.getConfigSlice = vi.fn();
     mockApp.addServices = vi.fn();
     mockApp.requireService = vi.fn().mockResolvedValue(mockChatService);
@@ -73,35 +71,31 @@ describe('MCP Integration Tests', () => {
 
   describe('Complete Plugin Installation', () => {
     it('should install plugin without configuration', async () => {
-      mockApp.getConfigSlice.mockReturnValue(undefined);
+      // When no config.mcp, plugin should not add services
+      await plugin.install(mockApp, {});
 
-      await plugin.install(mockApp);
-
-      expect(mockApp.getConfigSlice).toHaveBeenCalledWith('mcp', MCPConfigSchema);
-      expect(mockApp.addServices).not.toHaveBeenCalled(); // No service added without config
+      expect(mockApp.addServices).not.toHaveBeenCalled();
     });
 
     it('should install plugin with empty configuration', async () => {
-      mockApp.getConfigSlice.mockReturnValue({ transports: {} });
+      // When config.mcp exists but has no transports, plugin should still add the service
+      await plugin.install(mockApp, { mcp: { transports: {} } });
 
-      await plugin.install(mockApp);
-
-      expect(mockApp.getConfigSlice).toHaveBeenCalledWith('mcp', MCPConfigSchema);
       expect(mockApp.addServices).toHaveBeenCalledWith(expect.any(MCPService));
     });
 
     it('should install plugin with stdio transport', async () => {
       const config = {
-        transports: {
-          'my-mcp-server': {
-            type: 'stdio',
-            command: 'mcp-server',
-            args: ['--config', 'config.json'],
+        mcp: {
+          transports: {
+            'my-mcp-server': {
+              type: 'stdio',
+              command: 'mcp-server',
+              args: ['--config', 'config.json'],
+            },
           },
-        },
+        }
       };
-
-      mockApp.getConfigSlice.mockReturnValue(config);
 
       // Mock MCP client and tools
       const mockClient = {
@@ -125,7 +119,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp);
+      await plugin.install(mockApp, config);
 
       // Verify service was added
       expect(mockApp.addServices).toHaveBeenCalledWith(expect.any(MCPService));
@@ -157,18 +151,18 @@ describe('MCP Integration Tests', () => {
 
     it('should install plugin with SSE transport', async () => {
       const config = {
-        transports: {
-          'remote-server': {
-            type: 'sse',
-            url: 'http://localhost:3000/mcp-sse',
-            headers: {
-              'Authorization': 'Bearer token123',
+        mcp: {
+          transports: {
+            'remote-server': {
+              type: 'sse',
+              url: 'http://localhost:3000/mcp-sse',
+              headers: {
+                'Authorization': 'Bearer token123',
+              },
             },
           },
-        },
+        }
       };
-
-      mockApp.getConfigSlice.mockReturnValue(config);
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -182,7 +176,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp);
+      await plugin.install(mockApp, config);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
       const call = mockChatService.registerTool.mock.calls[0];
@@ -197,19 +191,19 @@ describe('MCP Integration Tests', () => {
 
     it('should install plugin with HTTP transport', async () => {
       const config = {
-        transports: {
-          'api-server': {
-            type: 'http',
-            url: 'http://localhost:3001/api/mcp',
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+        mcp: {
+          transports: {
+            'api-server': {
+              type: 'http',
+              url: 'http://localhost:3001/api/mcp',
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
             },
           },
-        },
+        }
       };
-
-      mockApp.getConfigSlice.mockReturnValue(config);
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -223,7 +217,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp);
+      await plugin.install(mockApp, config);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
       const call = mockChatService.registerTool.mock.calls[0];
@@ -238,23 +232,23 @@ describe('MCP Integration Tests', () => {
 
     it('should install plugin with multiple transports of different types', async () => {
       const config = {
-        transports: {
-          'local-server': {
-            type: 'stdio',
-            command: 'local-mcp-server',
+        mcp: {
+          transports: {
+            'local-server': {
+              type: 'stdio',
+              command: 'local-mcp-server',
+            },
+            'remote-sse': {
+              type: 'sse',
+              url: 'http://localhost:3000/remote-sse',
+            },
+            'api-http': {
+              type: 'http',
+              url: 'http://localhost:3001/api',
+            },
           },
-          'remote-sse': {
-            type: 'sse',
-            url: 'http://localhost:3000/remote-sse',
-          },
-          'api-http': {
-            type: 'http',
-            url: 'http://localhost:3001/api',
-          },
-        },
+        }
       };
-
-      mockApp.getConfigSlice.mockReturnValue(config);
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -268,7 +262,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp);
+      await plugin.install(mockApp, config);
 
       // Should register tools for each server
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(3);
@@ -487,23 +481,20 @@ describe('MCP Integration Tests', () => {
 
     it('should handle concurrent plugin installations', async () => {
       const config1 = {
-        transports: {
-          'server1': { type: 'stdio', command: 'server1' },
-        },
+        mcp: {
+          transports: {
+            'server1': { type: 'stdio', command: 'server1' },
+          },
+        }
       };
 
       const config2 = {
-        transports: {
-          'server2': { type: 'sse', url: 'http://localhost:3000/server2' },
-        },
+        mcp: {
+          transports: {
+            'server2': { type: 'sse', url: 'http://localhost:3000/server2' },
+          },
+        }
       };
-
-      // Mock different configs for different calls
-      let callCount = 0;
-      mockApp.getConfigSlice.mockImplementation(() => {
-        callCount++;
-        return callCount === 1 ? config1 : config2;
-      });
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -513,8 +504,8 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      const promise1 = plugin.install(mockApp);
-      const promise2 = plugin.install(mockApp);
+      const promise1 = plugin.install(mockApp, config1);
+      const promise2 = plugin.install(mockApp, config2);
 
       // Use Promise.allSettled for concurrent operations
       const results = await Promise.allSettled([promise1, promise2]);
