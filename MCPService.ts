@@ -1,15 +1,13 @@
 import {experimental_createMCPClient} from '@ai-sdk/mcp';
 import {SSEClientTransport} from '@modelcontextprotocol/sdk/client/sse.js';
 
-
 import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
 import {StreamableHTTPClientTransport} from '@modelcontextprotocol/sdk/client/streamableHttp.js';
 import {Transport} from "@modelcontextprotocol/sdk/shared/transport.js";
 import TokenRingApp from "@tokenring-ai/app";
-import {ChatService} from "@tokenring-ai/chat";
 import {TokenRingService} from "@tokenring-ai/app/types";
+import {ChatService} from "@tokenring-ai/chat";
 import {z} from "zod";
-
 
 export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
   z.object({type: z.literal("stdio")}).passthrough(),
@@ -25,7 +23,7 @@ export default class MCPService implements TokenRingService {
   description = "Service for MCP (Model Context Protocol) servers";
 
   async register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void> {
-    const chatService = await app.requireService(ChatService);
+    const chatService = app.requireService(ChatService);
     let transport: Transport;
     switch (config.type) {
       case "stdio":

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import {experimental_createMCPClient} from '@ai-sdk/mcp';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import MCPService from './MCPService';
-import { experimental_createMCPClient } from '@ai-sdk/mcp';
 
 // Mock the external dependencies
 vi.mock('@ai-sdk/mcp', () => ({

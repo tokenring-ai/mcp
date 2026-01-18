@@ -15,13 +15,16 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
 
-  async install(app, config) {
+  install(app, config) {
     if (config.mcp) {
       const mcpService = new MCPService();
       app.addServices(mcpService);
-
+    }
+  },
+  async start(app, config) {
+    if (config.mcp) {
       for (const name in config.mcp.transports) {
-        await mcpService.register(name, config.mcp.transports[name] as any, app);
+        await app.requireService(MCPService).register(name, config.mcp.transports[name] as any, app);
       }
     }
   },

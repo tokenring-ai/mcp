@@ -1,10 +1,8 @@
+import {experimental_createMCPClient} from '@ai-sdk/mcp';
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import plugin from './plugin';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import MCPService from './MCPService';
-import { MCPConfigSchema } from './index';
-import { experimental_createMCPClient } from '@ai-sdk/mcp';
-import { ChatService } from '@tokenring-ai/chat';
+import plugin from './plugin';
 
 const mockedMcp = vi.hoisted(() => ({
   experimental_createMCPClient: vi.fn(),

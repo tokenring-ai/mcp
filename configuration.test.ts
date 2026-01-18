@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { MCPConfigSchema } from './index';
-import { MCPTransportConfigSchema } from './MCPService';
+import {describe, expect, it} from 'vitest';
+import {MCPConfigSchema} from './index';
+import {MCPTransportConfigSchema} from './MCPService';
 
 describe('Configuration Schemas', () => {
   describe('MCPConfigSchema', () => {
