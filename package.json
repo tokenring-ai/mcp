@@ -6,9 +6,9 @@
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
     "@tokenring-ai/agent": "0.2.0",
-    "@ai-sdk/mcp": "^1.0.6",
-    "@modelcontextprotocol/sdk": "^1.25.2",
-    "ai": "^6.0.33",
+    "@ai-sdk/mcp": "^1.0.15",
+    "@modelcontextprotocol/sdk": "^1.25.3",
+    "ai": "^6.0.62",
     "zod": "catalog:"
   },
   "exports": {
