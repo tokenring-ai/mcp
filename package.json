@@ -9,7 +9,7 @@
     "@ai-sdk/mcp": "^1.0.15",
     "@modelcontextprotocol/sdk": "^1.25.3",
     "ai": "^6.0.62",
-    "zod": "catalog:"
+    "zod": "^4.3.6"
   },
   "exports": {
     ".": "./index.ts",
@@ -18,8 +18,8 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "vitest": "catalog:",
-    "typescript": "catalog:"
+    "vitest": "^4.0.18",
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "test": "vitest run",
