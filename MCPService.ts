@@ -19,7 +19,7 @@ export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
 
 
 export default class MCPService implements TokenRingService {
-  name = "MCPService";
+  readonly name = "MCPService";
   description = "Service for MCP (Model Context Protocol) servers";
 
   async register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void> {

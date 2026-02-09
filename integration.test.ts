@@ -70,14 +70,14 @@ describe('MCP Integration Tests', () => {
   describe('Complete Plugin Installation', () => {
     it('should install plugin without configuration', async () => {
       // When no config.mcp, plugin should not add services
-      await plugin.install(mockApp, {});
+      plugin.install(mockApp, {});
 
       expect(mockApp.addServices).not.toHaveBeenCalled();
     });
 
     it('should install plugin with empty configuration', async () => {
       // When config.mcp exists but has no transports, plugin should still add the service
-      await plugin.install(mockApp, { mcp: { transports: {} } });
+      plugin.install(mockApp, {mcp: {transports: {}}});
 
       expect(mockApp.addServices).toHaveBeenCalledWith(expect.any(MCPService));
     });
@@ -117,7 +117,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp, config);
+      plugin.install(mockApp, config);
 
       // Verify service was added
       expect(mockApp.addServices).toHaveBeenCalledWith(expect.any(MCPService));
@@ -174,7 +174,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp, config);
+      plugin.install(mockApp, config);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
       const call = mockChatService.registerTool.mock.calls[0];
@@ -215,7 +215,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp, config);
+      plugin.install(mockApp, config);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
       const call = mockChatService.registerTool.mock.calls[0];
@@ -260,7 +260,7 @@ describe('MCP Integration Tests', () => {
 
       experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      await plugin.install(mockApp, config);
+      plugin.install(mockApp, config);
 
       // Should register tools for each server
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(3);

@@ -7,7 +7,7 @@
     "@tokenring-ai/chat": "0.2.0",
     "@tokenring-ai/agent": "0.2.0",
     "@ai-sdk/mcp": "^1.0.15",
-    "@modelcontextprotocol/sdk": "^1.25.3",
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "ai": "^6.0.62",
     "zod": "^4.3.6"
   },
