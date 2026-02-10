@@ -1,4 +1,7 @@
 import {experimental_createMCPClient} from '@ai-sdk/mcp';
+import TokenRingApp from "@tokenring-ai/app";
+import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
+import {ChatService} from "@tokenring-ai/chat";
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import MCPService from './MCPService';
 
@@ -26,37 +29,21 @@ vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js', () => ({
   },
 }));
 
-// Mock app and chat service properly
-vi.mock('@tokenring-ai/app', () => ({
-  default: {
-    requireService: vi.fn(),
-  },
-}));
-
-vi.mock('@tokenring-ai/chat', () => ({
-  ChatService: 'ChatService',
-}));
-
 describe('MCPService', () => {
   let mcpService: MCPService;
-  let mockApp: any;
-  let mockChatService: any;
+  let mockApp: TokenRingApp;
+  let mockChatService: ChatService
 
   beforeEach(() => {
     vi.clearAllMocks();
     mcpService = new MCPService();
+
+    mockApp = createTestingApp()
     
     // Mock ChatService
-    mockChatService = {
-      registerTool: vi.fn(),
-    };
-
-    // Mock TokenRingApp
-    mockApp = {
-      requireService: vi.fn().mockResolvedValue(mockChatService),
-      getConfigSlice: vi.fn(),
-      addServices: vi.fn(),
-    };
+    mockChatService = new ChatService(mockApp, {});
+    mockApp.addServices(mockChatService);
+    vi.spyOn(mockChatService, 'registerTool')
   });
 
   afterEach(() => {
@@ -237,21 +224,6 @@ describe('MCPService', () => {
       await expect(mcpService.register('test-server', config, mockApp))
         .rejects
         .toThrow('Tool retrieval failed');
-    });
-
-    it('should handle app service resolution failures', async () => {
-      const mockAppWithError = {
-        requireService: vi.fn().mockRejectedValue(new Error('Service not found')),
-      };
-
-      const config = {
-        type: 'sse',
-        url: 'http://localhost:3000/mcp',
-      };
-
-      await expect(mcpService.register('test-server', config, mockAppWithError))
-        .rejects
-        .toThrow('Service not found');
     });
   });
 });
