@@ -32,75 +32,11 @@ This package depends on:
 - **ai**: AI SDK core functionality
 - **zod**: Schema validation library
 
-## Core Components/API
-
-### MCPService
-
-The main service class for MCP server registration and management.
-
-#### Constructor
-
-```typescript
-new MCPService()
-```
-
-#### Properties
-
-- `name: "MCPService"`: Service identifier
-- `description: "Service for MCP (Model Context Protocol) servers"`: Service description
-
-#### Methods
-
-- `register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void>`
-  - Registers an MCP server with the TokenRing application
-  - `name`: Unique identifier for the MCP server
-  - `config`: Transport configuration object
-  - `app`: TokenRingApp instance to register tools with
-  - Returns `void` - resolves when server is connected and tools are registered
-
-### Configuration Schemas
-
-#### MCPConfigSchema
-
-Top-level configuration schema for the plugin:
-
-```typescript
-z.object({
-  transports: z.record(z.string(), z.looseObject({type: z.string()}))
-}).optional();
-```
-
-#### MCPTransportConfigSchema
-
-Transport type discriminated union schema:
-
-```typescript
-z.discriminatedUnion("type", [
-  z.object({type: z.literal("stdio")}).passthrough(),
-  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
-  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
-]);
-```
-
-#### MCPTransportConfig Type
-
-Type-safe transport configuration types:
-
-```typescript
-type MCPTransportConfig =
-  | { type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string }
-  | { type: "sse"; url: string; headers?: Record<string, string>; timeout?: number }
-  | { type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number };
-```
-
-## Usage Examples
-
-### As a TokenRing Plugin
+## Plugin Configuration
 
 Configure the MCP package in your TokenRing application:
 
 ```typescript
-// In your TokenRing app configuration
 {
   plugins: [
     {
@@ -139,7 +75,102 @@ Configure the MCP package in your TokenRing application:
 }
 ```
 
-### Manual Usage
+## Agent Configuration
+
+This package does not have agent-specific configuration.
+
+## Tools
+
+This package does not define tools directly but registers tools from MCP servers.
+
+## Services
+
+### MCPService
+
+The main service class for MCP server registration and management.
+
+#### Constructor
+
+```typescript
+new MCPService()
+```
+
+#### Properties
+
+- `name: "MCPService"`: Service identifier
+- `description: "Service for MCP (Model Context Protocol) servers"`: Service description
+
+#### Methods
+
+- `register(name: string, config: MCPTransportConfig, app: TokenRingApp): Promise<void>`
+  - Registers an MCP server with the TokenRing application
+  - `name`: Unique identifier for the MCP server
+  - `config`: Transport configuration object
+  - `app`: TokenRingApp instance to register tools with
+  - Returns `void` - resolves when server is connected and tools are registered
+
+#### MCPTransportConfig Schema
+
+The transport configuration schema validates transport types and options:
+
+```typescript
+z.discriminatedUnion("type", [
+  z.object({type: z.literal("stdio")}).passthrough(),
+  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
+  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
+]);
+```
+
+#### MCPTransportConfig Type
+
+```typescript
+type MCPTransportConfig =
+  | { type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string }
+  | { type: "sse"; url: string; headers?: Record<string, string>; timeout?: number }
+  | { type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number };
+```
+
+## RPC Endpoints
+
+This package does not define RPC endpoints.
+
+## State Management
+
+This package does not implement state management.
+
+## Scripting Integration
+
+This package does not register functions with the ScriptingService.
+
+## Usage Examples
+
+### Plugin Installation
+
+The MCP plugin automatically registers when configured:
+
+```typescript
+// In your TokenRing app configuration
+{
+  plugins: [
+    {
+      name: "@tokenring-ai/mcp",
+      config: {
+        mcp: {
+          transports: {
+            myserver: {
+              type: "stdio",
+              command: "mcp-server",
+              args: ["--config", "config.json"]
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+### Manual Service Usage
 
 ```typescript
 import { MCPService } from '@tokenring-ai/mcp';
