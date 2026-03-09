@@ -14,6 +14,7 @@ MCP (Model Context Protocol) client integration for the TokenRing ecosystem. Thi
 - **Type-Safe Configuration**: Strong typing for all configuration options using TypeScript and Zod
 - **Error Handling**: Proper error handling for transport connections and tool registration
 - **Tool Schema Preservation**: Maintains original MCP tool schemas during registration
+- **Passthrough Configuration**: Supports additional configuration properties via Zod passthrough
 
 ## Installation
 
@@ -90,14 +91,17 @@ await mcpService.register('myserver', {
 
 ### MCPTransportConfig
 
-Type definition for MCP transport configurations.
+Type definition for MCP transport configurations, defined as a discriminated union with passthrough support for additional properties.
 
 ```typescript
-type MCPTransportConfig =
-  | { type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string }
-  | { type: "sse"; url: string; headers?: Record<string, string>; timeout?: number }
-  | { type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number };
+type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
 ```
+
+The schema uses discriminated union with passthrough, allowing three transport types:
+
+- **stdio**: `{ type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string; [key: string]: any }`
+- **sse**: `{ type: "sse"; url: string; headers?: Record<string, string>; timeout?: number; [key: string]: any }`
+- **http**: `{ type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number; [key: string]: any }`
 
 ### MCPTransportConfigSchema
 
@@ -111,6 +115,13 @@ export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
 ]);
 ```
 
+**Key Features:**
+
+- **Discriminated Union**: Uses `type` field to determine transport type
+- **Passthrough**: Allows additional properties beyond the defined schema
+- **URL Validation**: SSE and HTTP transports require valid URLs
+- **Type Safety**: TypeScript types are inferred from the schema
+
 ### MCPConfigSchema
 
 Zod schema for validating MCP plugin configuration.
@@ -120,6 +131,8 @@ export const MCPConfigSchema = z.object({
   transports: z.record(z.string(), z.looseObject({type: z.string()}))
 }).optional();
 ```
+
+**Note:** The schema uses `z.looseObject()` which allows additional properties beyond the `type` field.
 
 ## Configuration
 
@@ -231,10 +244,11 @@ Execute an MCP server as a child process.
 ```typescript
 {
   type: 'stdio',
-  command: 'mcp-server',           // Required: Command to execute
-  args?: string[],                // Optional: Command arguments
-  env?: Record<string, string>,   // Optional: Environment variables
-  cwd?: string                    // Optional: Working directory
+  command: string,           // Required: Command to execute
+  args?: string[],          // Optional: Command arguments
+  env?: Record<string, string>, // Optional: Environment variables
+  cwd?: string,             // Optional: Working directory
+  [key: string]: any        // Additional properties passed through
 }
 ```
 
@@ -252,6 +266,14 @@ await mcpService.register('local-server', {
 }, app);
 ```
 
+**Transport Creation:**
+
+The stdio transport is created by passing the entire config object to `StdioClientTransport`:
+
+```typescript
+transport = new StdioClientTransport(config as any);
+```
+
 ### SSE Transport
 
 Connect to an MCP server using Server-Sent Events.
@@ -261,9 +283,10 @@ Connect to an MCP server using Server-Sent Events.
 ```typescript
 {
   type: 'sse',
-  url: 'http://localhost:3000/sse', // Required: SSE endpoint URL
+  url: string,              // Required: SSE endpoint URL
   headers?: Record<string, string>, // Optional: Custom headers
-  timeout?: number                // Optional: Connection timeout in ms
+  timeout?: number,         // Optional: Connection timeout in ms
+  [key: string]: any        // Additional properties passed through
 }
 ```
 
@@ -280,6 +303,14 @@ await mcpService.register('remote-server', {
 }, app);
 ```
 
+**Transport Creation:**
+
+The SSE transport is created with a URL object:
+
+```typescript
+transport = new SSEClientTransport(new URL(config.url));
+```
+
 ### HTTP Transport
 
 Connect to an MCP server using HTTP (streamable HTTP).
@@ -289,10 +320,11 @@ Connect to an MCP server using HTTP (streamable HTTP).
 ```typescript
 {
   type: 'http',
-  url: 'http://localhost:3001/api/mcp', // Required: HTTP endpoint URL
-  method?: 'GET' | 'POST' | 'PUT' | 'DELETE',     // Optional: HTTP method (default: GET)
-  headers?: Record<string, string>,    // Optional: Custom headers
-  timeout?: number                   // Optional: Connection timeout in ms
+  url: string,              // Required: HTTP endpoint URL
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE', // Optional: HTTP method
+  headers?: Record<string, string>, // Optional: Custom headers
+  timeout?: number,         // Optional: Connection timeout in ms
+  [key: string]: any        // Additional properties passed through
 }
 ```
 
@@ -308,6 +340,14 @@ await mcpService.register('api-server', {
   },
   timeout: 5000
 }, app);
+```
+
+**Transport Creation:**
+
+The HTTP transport is created with a URL object:
+
+```typescript
+transport = new StreamableHTTPClientTransport(new URL(config.url));
 ```
 
 ## Tool Registration
@@ -337,6 +377,19 @@ The package maintains the original MCP tool schemas:
 - Tool descriptions are preserved
 - Execution handlers are bound to the MCP client
 - Type safety is maintained through TypeScript types
+
+**Registration Structure:**
+
+```typescript
+chatService.registerTool(`${name}/${toolName}`, {
+  name: `${name}/${toolName}`,
+  tool: {
+    inputSchema: tool.inputSchema,
+    execute: tool.execute,
+    description: tool.description
+  }
+});
+```
 
 ## Plugin Lifecycle
 
@@ -601,6 +654,12 @@ The package provides comprehensive error handling:
 - Use TypeScript to catch configuration errors at compile time
 - Validate configurations before passing to the plugin
 - Use Zod schemas for runtime validation when needed
+
+### Passthrough Configuration
+
+- The schema uses `.passthrough()` to allow additional properties
+- Additional properties are passed through to transport constructors
+- Be aware that invalid properties may cause runtime errors in transport creation
 
 ## Development
 
