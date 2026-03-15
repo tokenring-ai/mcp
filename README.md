@@ -119,7 +119,7 @@ export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
 
 - **Discriminated Union**: Uses `type` field to determine transport type
 - **Passthrough**: Allows additional properties beyond the defined schema
-- **URL Validation**: SSE and HTTP transports require valid URLs
+- **URL Validation**: SSE and HTTP transports require valid URLs using `z.url()`
 - **Type Safety**: TypeScript types are inferred from the schema
 
 ### MCPConfigSchema
@@ -132,7 +132,7 @@ export const MCPConfigSchema = z.object({
 }).optional();
 ```
 
-**Note:** The schema uses `z.looseObject()` which allows additional properties beyond the `type` field.
+**Note:** The schema uses `z.record()` to create a record of transport configurations, where each transport must have a `type` field. It uses `z.looseObject()` which allows additional properties beyond the `type` field.
 
 ## Configuration
 
@@ -661,7 +661,7 @@ The package provides comprehensive error handling:
 - Additional properties are passed through to transport constructors
 - Be aware that invalid properties may cause runtime errors in transport creation
 
-## Development
+## Testing and Development
 
 ### Testing
 
@@ -719,6 +719,33 @@ bun run build
 - Ensure all changes work with TokenRing agent framework
 - Test with all three transport types (stdio, SSE, HTTP)
 - Verify tool registration and execution
+
+## Dependencies
+
+### Production Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| @tokenring-ai/app | 0.2.0 | Core TokenRing application framework |
+| @tokenring-ai/chat | 0.2.0 | Chat service for tool registration |
+| @tokenring-ai/agent | 0.2.0 | Agent system for tool execution |
+| @ai-sdk/mcp | ^1.0.28 | AI SDK MCP integration |
+| @modelcontextprotocol/sdk | ^1.27.1 | Official MCP SDK |
+| ai | ^6.0.127 | AI SDK core |
+| zod | ^4.3.6 | Schema validation |
+
+### Development Dependencies
+
+| Package | Version | Purpose |
+|---------|---------|---------|
+| vitest | ^4.1.0 | Testing framework |
+| typescript | ^5.9.3 | TypeScript compiler |
+
+## Related Components
+
+- **@tokenring-ai/agent**: Core agent orchestration system
+- **@tokenring-ai/chat**: Chat service for tool registration
+- **@tokenring-ai/app**: Base application framework
 
 ## License
 
