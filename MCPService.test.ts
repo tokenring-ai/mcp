@@ -2,6 +2,7 @@ import {experimental_createMCPClient} from '@ai-sdk/mcp';
 import TokenRingApp from "@tokenring-ai/app";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import {ChatService} from "@tokenring-ai/chat";
+import {ChatServiceConfigSchema} from "@tokenring-ai/chat/schema";
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import MCPService from './MCPService';
 
@@ -12,42 +13,55 @@ vi.mock('@ai-sdk/mcp', () => ({
 
 // Mock transport classes with proper constructor mocking
 vi.mock('@modelcontextprotocol/sdk/client/sse.js', () => ({
-  SSEClientTransport: class MockSSEClientTransport {
-    connect = vi.fn();
-  },
+  SSEClientTransport: vi.fn().mockImplementation(function(this: any) {
+    this.connect = vi.fn();
+    return this;
+  })
 }));
 
 vi.mock('@modelcontextprotocol/sdk/client/stdio.js', () => ({
-  StdioClientTransport: class MockStdioClientTransport {
-    connect = vi.fn();
-  },
+  StdioClientTransport: vi.fn().mockImplementation(function(this: any) {
+    this.connect = vi.fn();
+    return this;
+  })
 }));
 
 vi.mock('@modelcontextprotocol/sdk/client/streamableHttp.js', () => ({
-  StreamableHTTPClientTransport: class MockStreamableHTTPClientTransport {
-    connect = vi.fn();
-  },
+  StreamableHTTPClientTransport: vi.fn().mockImplementation(function(this: any) {
+    this.connect = vi.fn();
+    return this;
+  })
 }));
 
 describe('MCPService', () => {
   let mcpService: MCPService;
   let mockApp: TokenRingApp;
-  let mockChatService: ChatService
+  let mockChatService: ChatService;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mcpService = new MCPService();
 
-    mockApp = createTestingApp()
+    // Create mock app
+    mockApp = createTestingApp();
     
-    // Mock ChatService
-    mockChatService = new ChatService(mockApp, {});
+    // Create proper ChatService instance with required config
+    const chatConfig = ChatServiceConfigSchema.parse({
+      defaultModels: [],
+      agentDefaults: {}
+    });
+    mockChatService = new ChatService(mockApp, chatConfig);
+    
+    // Register the ChatService with the app
     mockApp.addServices(mockChatService);
-    vi.spyOn(mockChatService, 'registerTool')
+    
+    // Spy on registerTool method
+    vi.spyOn(mockChatService, 'registerTool');
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    mockApp.shutdown();
   });
 
   describe('constructor and properties', () => {
