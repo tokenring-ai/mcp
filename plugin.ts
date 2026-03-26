@@ -3,7 +3,7 @@ import {z} from "zod";
 import {MCPConfigSchema} from "./index.ts";
 import MCPService from "./MCPService.ts";
 
-import packageJSON from './package.json' with {type: 'json'};
+import packageJSON from "./package.json" with {type: "json"};
 
 const packageConfigSchema = z.object({
   mcp: MCPConfigSchema.optional(),

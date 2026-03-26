@@ -6,9 +6,9 @@
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
     "@tokenring-ai/agent": "0.2.0",
-    "@ai-sdk/mcp": "^1.0.28",
-    "@modelcontextprotocol/sdk": "^1.27.1",
-    "ai": "^6.0.128",
+    "@ai-sdk/mcp": "^1.0.30",
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "ai": "^6.0.138",
     "zod": "^4.3.6"
   },
   "exports": {
@@ -18,8 +18,8 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "vitest": "^4.1.0",
-    "typescript": "^5.9.3"
+    "vitest": "^4.1.1",
+    "typescript": "^6.0.2"
   },
   "scripts": {
     "test": "vitest run",

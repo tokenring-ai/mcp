@@ -729,9 +729,9 @@ bun run build
 | @tokenring-ai/app | 0.2.0 | Core TokenRing application framework |
 | @tokenring-ai/chat | 0.2.0 | Chat service for tool registration |
 | @tokenring-ai/agent | 0.2.0 | Agent system for tool execution |
-| @ai-sdk/mcp | ^1.0.28 | AI SDK MCP integration |
-| @modelcontextprotocol/sdk | ^1.27.1 | Official MCP SDK |
-| ai | ^6.0.127 | AI SDK core |
+| @ai-sdk/mcp | ^1.0.30 | AI SDK MCP integration |
+| @modelcontextprotocol/sdk | ^1.28.0 | Official MCP SDK |
+| ai | ^6.0.138 | AI SDK core |
 | zod | ^4.3.6 | Schema validation |
 
 ### Development Dependencies
