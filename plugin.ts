@@ -12,6 +12,7 @@ const packageConfigSchema = z.object({
 
 export default {
   name: packageJSON.name,
+  displayName: "Model Context Protocol",
   version: packageJSON.version,
   description: packageJSON.description,
 

@@ -1,7 +1,7 @@
 {
   "name": "@tokenring-ai/mcp",
   "version": "0.2.0",
-  "description": "MCP (Model Context Protocol) client for Token Ring",
+  "description": "Client for connecting agents to external tools and resources via the MCP standard.",
   "dependencies": {
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
