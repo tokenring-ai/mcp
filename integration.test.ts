@@ -1,4 +1,3 @@
-import {experimental_createMCPClient} from '@ai-sdk/mcp';
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
 import {ChatService} from "@tokenring-ai/chat";
 import {ChatServiceConfigSchema} from "@tokenring-ai/chat/schema";
