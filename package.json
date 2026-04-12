@@ -5,10 +5,8 @@
   "dependencies": {
     "@tokenring-ai/app": "0.2.0",
     "@tokenring-ai/chat": "0.2.0",
-    "@tokenring-ai/agent": "0.2.0",
     "@ai-sdk/mcp": "^1.0.35",
     "@modelcontextprotocol/sdk": "^1.29.0",
-    "ai": "^6.0.149",
     "zod": "^4.3.6"
   },
   "exports": {
