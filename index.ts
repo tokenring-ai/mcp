@@ -1,8 +1,9 @@
 import {z} from "zod";
+import {MCPTransportConfigSchema} from "./MCPService.ts";
 
 export const MCPConfigSchema = z
   .object({
-    transports: z.record(z.string(), z.looseObject({type: z.string()})),
+    transports: z.record(z.string(), MCPTransportConfigSchema),
   })
   .optional();
 

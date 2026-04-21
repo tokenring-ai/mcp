@@ -23,10 +23,10 @@ export default {
   },
   async start(app, config) {
     if (config.mcp) {
-      for (const name in config.mcp.transports) {
+      for (const [name, transportConfig] of Object.entries(config.mcp.transports)) {
         await app
           .requireService(MCPService)
-          .register(name, config.mcp.transports[name] as any, app);
+          .register(name, transportConfig, app);
       }
     }
   },

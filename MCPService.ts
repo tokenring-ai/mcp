@@ -10,9 +10,12 @@ import {ChatService} from "@tokenring-ai/chat";
 import {z} from "zod";
 
 export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
-  z.object({type: z.literal("stdio")}).passthrough(),
-  z.object({type: z.literal("sse"), url: z.url()}).passthrough(),
-  z.object({type: z.literal("http"), url: z.url()}).passthrough(),
+  z.looseObject({
+    type: z.literal("stdio"),
+    command: z.string(),
+  }),
+  z.object({type: z.literal("sse"), url: z.url()}),
+  z.object({type: z.literal("http"), url: z.url()}),
 ]);
 
 export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
@@ -28,9 +31,11 @@ export default class MCPService implements TokenRingService {
   ): Promise<void> {
     const chatService = app.requireService(ChatService);
     let transport: Transport;
-    switch (config.type) {
+
+    const configType = config.type;
+    switch (configType) {
       case "stdio":
-        transport = new StdioClientTransport(config as any);
+        transport = new StdioClientTransport(config);
         break;
       case "sse":
         transport = new SSEClientTransport(new URL(config.url));
@@ -39,7 +44,9 @@ export default class MCPService implements TokenRingService {
         transport = new StreamableHTTPClientTransport(new URL(config.url));
         break;
       default:
-        throw new Error(`Unknown connection type ${(config as any).type}`);
+        // noinspection UnnecessaryLocalVariableJS
+        const unknownConfigType: never = configType;
+        throw new Error(`Unknown connection type ${unknownConfigType as string}`);
     }
 
     const client = await experimental_createMCPClient({transport});
@@ -50,7 +57,7 @@ export default class MCPService implements TokenRingService {
       chatService.registerTool(`${name}/${toolName}`, {
         name: `${name}/${toolName}`,
         tool: {
-          inputSchema: tool.inputSchema as any,
+          inputSchema: tool.inputSchema,
           execute: tool.execute,
           description: tool.description,
         },
