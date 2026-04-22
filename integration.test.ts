@@ -472,7 +472,7 @@ describe('MCP Integration Tests', () => {
         await mcpService.register('test-server', config, mockApp);
         // Should not reach here
         expect(true).toBe(false);
-      } catch (error: any) {
+      } catch (error) {
         expect(error.message).toBe('Registration failed');
       } finally {
         mockChatService.registerTool = originalRegisterTool;
