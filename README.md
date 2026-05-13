@@ -2,7 +2,10 @@
 
 ## Overview
 
-MCP (Model Context Protocol) client integration for the TokenRing ecosystem. This package provides MCP client functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the Model Context Protocol. It serves as a TokenRing plugin that automatically registers MCP server tools with the chat service.
+MCP (Model Context Protocol) client integration for the TokenRing ecosystem. This package provides MCP client
+functionality to connect TokenRing agents with MCP servers, enabling access to external tools and resources through the
+Model Context Protocol. It serves as a TokenRing plugin that automatically registers MCP server tools with the chat
+service.
 
 ## Key Features
 
@@ -91,7 +94,8 @@ await mcpService.register('myserver', {
 
 ### MCPTransportConfig
 
-Type definition for MCP transport configurations, defined as a discriminated union with passthrough support for additional properties.
+Type definition for MCP transport configurations, defined as a discriminated union with passthrough support for
+additional properties.
 
 ```typescript
 type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
@@ -99,9 +103,11 @@ type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
 
 The schema uses discriminated union with passthrough, allowing three transport types:
 
-- **stdio**: `{ type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string; [key: string]: any }`
+- **stdio**:
+  `{ type: "stdio"; command: string; args?: string[]; env?: Record<string, string>; cwd?: string; [key: string]: any }`
 - **sse**: `{ type: "sse"; url: string; headers?: Record<string, string>; timeout?: number; [key: string]: any }`
-- **http**: `{ type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number; [key: string]: any }`
+- **http**:
+  `{ type: "http"; url: string; method?: "GET" | "POST" | "PUT" | "DELETE"; headers?: Record<string, string>; timeout?: number; [key: string]: any }`
 
 ### MCPTransportConfigSchema
 
@@ -132,7 +138,8 @@ export const MCPConfigSchema = z.object({
 }).optional();
 ```
 
-**Note:** The schema uses `z.record()` to create a record of transport configurations, where each transport must have a `type` field. It uses `z.looseObject()` which allows additional properties beyond the `type` field.
+**Note:** The schema uses `z.record()` to create a record of transport configurations, where each transport must have a
+`type` field. It uses `z.looseObject()` which allows additional properties beyond the `type` field.
 
 ## Configuration
 
@@ -397,7 +404,8 @@ The MCP package integrates into the TokenRing plugin system with two lifecycle h
 
 ### install()
 
-Called when the plugin is installed. This method creates the MCPService instance and adds it to the application services.
+Called when the plugin is installed. This method creates the MCPService instance and adds it to the application
+services.
 
 ```typescript
 install(app, config) {
@@ -565,9 +573,9 @@ The package provides comprehensive error handling:
 
 - **Invalid Configuration**: Throws clear validation errors for invalid transport configurations using Zod
 - **Transport Failures**: Handles connection errors with descriptive messages
-  - Stdio: Process execution errors, command not found
-  - SSE: Connection timeouts, invalid URLs
-  - HTTP: Network errors, connection refused
+- Stdio: Process execution errors, command not found
+- SSE: Connection timeouts, invalid URLs
+- HTTP: Network errors, connection refused
 - **Tool Registration Failures**: Returns errors when tools cannot be registered with chat service
 - **Service Dependencies**: Checks for required services (ChatService, TokenRingApp) before registration
 - **Unknown Transport Types**: Throws errors for unsupported transport types
@@ -724,22 +732,22 @@ bun run build
 
 ### Production Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| @tokenring-ai/app | 0.2.0 | Core TokenRing application framework |
-| @tokenring-ai/chat | 0.2.0 | Chat service for tool registration |
-| @tokenring-ai/agent | 0.2.0 | Agent system for tool execution |
-| @ai-sdk/mcp | ^1.0.30 | AI SDK MCP integration |
-| @modelcontextprotocol/sdk | ^1.28.0 | Official MCP SDK |
-| ai | ^6.0.138 | AI SDK core |
-| zod | ^4.3.6 | Schema validation |
+| Package                   | Version  | Purpose                              |
+|---------------------------|----------|--------------------------------------|
+| @tokenring-ai/app         | 0.2.0    | Core TokenRing application framework |
+| @tokenring-ai/chat        | 0.2.0    | Chat service for tool registration   |
+| @tokenring-ai/agent       | 0.2.0    | Agent system for tool execution      |
+| @ai-sdk/mcp               | ^1.0.30  | AI SDK MCP integration               |
+| @modelcontextprotocol/sdk | ^1.28.0  | Official MCP SDK                     |
+| ai                        | ^6.0.138 | AI SDK core                          |
+| zod                       | ^4.3.6   | Schema validation                    |
 
 ### Development Dependencies
 
-| Package | Version | Purpose |
-|---------|---------|---------|
-| vitest | ^4.1.0 | Testing framework |
-| typescript | ^5.9.3 | TypeScript compiler |
+| Package    | Version | Purpose             |
+|------------|---------|---------------------|
+| vitest     | ^4.1.0  | Testing framework   |
+| typescript | ^5.9.3  | TypeScript compiler |
 
 ## Related Components
 
