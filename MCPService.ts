@@ -53,11 +53,12 @@ export default class MCPService implements TokenRingService {
       const tool = tools[toolName];
       chatService.registerTool(`${name}/${toolName}`, {
         name: `${name}/${toolName}`,
-        tool: {
+        displayName: toolName,
+        tool: (agent) => ({
           inputSchema: tool.inputSchema,
           execute: tool.execute,
           ...(tool.description && { description: tool.description }),
-        },
+        }),
       });
     }
   }
