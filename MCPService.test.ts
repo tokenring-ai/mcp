@@ -1,6 +1,6 @@
 import { experimental_createMCPClient } from "@ai-sdk/mcp";
 import TokenRingApp from "@tokenring-ai/app";
-import createTestingApp from "@tokenring-ai/app/test/createTestingApp";
+import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import { ChatService } from "@tokenring-ai/chat";
 import { ChatServiceConfigSchema } from "@tokenring-ai/chat/schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
