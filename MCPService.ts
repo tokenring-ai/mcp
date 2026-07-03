@@ -40,21 +40,19 @@ export default class MCPService implements TokenRingService {
         transport = new StreamableHTTPClientTransport(new URL(config.url)) as Transport;
         break;
       default: {
-        // noinspection UnnecessaryLocalVariableJS
-        const unknownConfigType: never = configType;
-        throw new Error(`Unknown connection type ${unknownConfigType as string}`);
+        const exhaustive: any = configType satisfies never;
+        throw new Error(`Unknown connection type ${exhaustive}`);
       }
     }
 
     const client = await experimental_createMCPClient({ transport });
     const tools = await client.tools();
 
-    for (const toolName in tools) {
-      const tool = tools[toolName];
+    for (const [toolName, tool] of Object.entries(tools)) {
       chatService.registerTool(`${name}/${toolName}`, {
         name: `${name}/${toolName}`,
         displayName: toolName,
-        tool: (agent) => ({
+        tool: _agent => ({
           inputSchema: tool.inputSchema,
           execute: tool.execute,
           ...(tool.description && { description: tool.description }),
