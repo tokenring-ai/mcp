@@ -97,7 +97,7 @@ describe("MCPService", () => {
         type: "stdio",
         command: "test-command",
         args: ["--test"],
-      };
+      } as const;
 
       await mcpService.register("test-server", stdioConfig, mockApp);
 
@@ -127,7 +127,7 @@ describe("MCPService", () => {
       const sseConfig = {
         type: "sse",
         url: "http://localhost:3000/sse",
-      };
+      } as const;
 
       await mcpService.register("sse-server", sseConfig, mockApp);
 
@@ -157,7 +157,7 @@ describe("MCPService", () => {
       const httpConfig = {
         type: "http",
         url: "http://localhost:3000/mcp",
-      };
+      } as const;
 
       await mcpService.register("http-server", httpConfig, mockApp);
 
@@ -197,7 +197,7 @@ describe("MCPService", () => {
       const config = {
         type: "sse",
         url: "http://localhost:3000/mcp",
-      };
+      } as const;
 
       await mcpService.register("multi-tool-server", config, mockApp);
 
@@ -216,7 +216,7 @@ describe("MCPService", () => {
       const config = {
         type: "sse",
         url: "http://localhost:3000/mcp",
-      };
+      } as const;
 
       await expect(mcpService.register("test-server", config, mockApp))
         .rejects
@@ -233,7 +233,7 @@ describe("MCPService", () => {
       const config = {
         type: "sse",
         url: "http://localhost:3000/mcp",
-      };
+      } as const;
 
       await expect(mcpService.register("test-server", config, mockApp))
         .rejects

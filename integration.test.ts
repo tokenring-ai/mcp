@@ -3,6 +3,7 @@ import { ChatService } from "@tokenring-ai/chat";
 import { ChatServiceConfigSchema } from "@tokenring-ai/chat/schema";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import MCPService from "./MCPService";
+import type { MCPTransportConfig } from "./MCPService";
 import plugin from "./plugin";
 
 const mockedMcp = vi.hoisted(() => ({
@@ -90,7 +91,7 @@ describe("MCP Integration Tests", () => {
             },
           },
         }
-      };
+      } as const;
 
       // Mock MCP client and tools
       const mockClient = {
@@ -125,12 +126,12 @@ describe("MCP Integration Tests", () => {
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(2);
 
       // Get the actual calls to verify structure
-      const calls = mockChatService.registerTool.mock.calls;
+      const calls = vi.mocked(mockChatService.registerTool).mock.calls;
       const getDataCall = calls.find((call: any) => call[0] === "my-mcp-server/get-data");
       const listItemsCall = calls.find((call: any) => call[0] === "my-mcp-server/list-items");
 
       expect(getDataCall).toBeDefined();
-      expect(getDataCall[1]).toMatchObject({
+      expect(getDataCall![1]).toMatchObject({
         name: "my-mcp-server/get-data",
         tool: {
           description: "Get data from MCP server",
@@ -138,7 +139,7 @@ describe("MCP Integration Tests", () => {
       });
 
       expect(listItemsCall).toBeDefined();
-      expect(listItemsCall[1]).toMatchObject({
+      expect(listItemsCall![1]).toMatchObject({
         name: "my-mcp-server/list-items",
         tool: {
           description: "List available items",
@@ -159,7 +160,7 @@ describe("MCP Integration Tests", () => {
             },
           },
         }
-      };
+      } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -181,9 +182,9 @@ describe("MCP Integration Tests", () => {
       await mcpService.register("remote-server", config.mcp.transports["remote-server"], mockApp);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
-      const call = mockChatService.registerTool.mock.calls[0];
-      expect(call[0]).toBe("remote-server/fetch-data");
-      expect(call[1]).toMatchObject({
+      const call = vi.mocked(mockChatService.registerTool).mock.calls[0];
+      expect(call![0]).toBe("remote-server/fetch-data");
+      expect(call![1]).toMatchObject({
         name: "remote-server/fetch-data",
         tool: {
           description: "Fetch remote data",
@@ -205,7 +206,7 @@ describe("MCP Integration Tests", () => {
             },
           },
         }
-      };
+      } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -227,9 +228,9 @@ describe("MCP Integration Tests", () => {
       await mcpService.register("api-server", config.mcp.transports["api-server"], mockApp);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
-      const call = mockChatService.registerTool.mock.calls[0];
-      expect(call[0]).toBe("api-server/process-request");
-      expect(call[1]).toMatchObject({
+      const call = vi.mocked(mockChatService.registerTool).mock.calls[0];
+      expect(call![0]).toBe("api-server/process-request");
+      expect(call![1]).toMatchObject({
         name: "api-server/process-request",
         tool: {
           description: "Process API request",
@@ -255,7 +256,7 @@ describe("MCP Integration Tests", () => {
             },
           },
         }
-      };
+      } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -274,8 +275,8 @@ describe("MCP Integration Tests", () => {
       mockApp.addServices(mcpService);
 
       // Register all transports
-      for (const name in config.mcp.transports) {
-        await mcpService.register(name, config.mcp.transports[name], mockApp);
+      for (const [name, transport] of Object.entries(config.mcp.transports)) {
+        await mcpService.register(name, transport, mockApp);
       }
 
       // Should register tools for each server
@@ -309,7 +310,7 @@ describe("MCP Integration Tests", () => {
       const config = {
         type: "sse",
         url: "http://localhost:3000/test-server",
-      };
+      } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -347,19 +348,19 @@ describe("MCP Integration Tests", () => {
       // Verify both tools were registered
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(2);
 
-      const calls = mockChatService.registerTool.mock.calls;
+      const calls = vi.mocked(mockChatService.registerTool).mock.calls;
       const calculateCall = calls.find((call: any) => call[0] === "calc-server/calculate");
       const formatCall = calls.find((call: any) => call[0] === "calc-server/format");
 
       expect(calculateCall).toBeDefined();
-      expect(calculateCall[1]).toMatchObject({
+      expect(calculateCall![1]).toMatchObject({
         name: "calc-server/calculate",
         tool: {
           description: "Perform calculations",
         },
       });
       expect(formatCall).toBeDefined();
-      expect(formatCall[1]).toMatchObject({
+      expect(formatCall![1]).toMatchObject({
         name: "calc-server/format",
         tool: {
           description: "Format text",
@@ -367,7 +368,7 @@ describe("MCP Integration Tests", () => {
       });
 
       // Verify the tool schemas are preserved
-      expect(calculateCall[1].tool.inputSchema).toEqual({
+      expect(calculateCall![1].tool(undefined as never).inputSchema).toEqual({
         type: "object",
         properties: {
           operation: { type: "string" },
@@ -376,7 +377,7 @@ describe("MCP Integration Tests", () => {
         required: ["operation", "numbers"],
       });
 
-      expect(formatCall[1].tool.inputSchema).toEqual({
+      expect(formatCall![1].tool(undefined as never).inputSchema).toEqual({
         type: "object",
         properties: {
           text: { type: "string" },
@@ -420,7 +421,7 @@ describe("MCP Integration Tests", () => {
       const mcpService = new MCPService();
       mockApp.addServices(mcpService);
 
-      const config = { type: "sse", url: "http://localhost:3000/test" };
+      const config = { type: "sse", url: "http://localhost:3000/test" } as const;
 
       mockedMcp.experimental_createMCPClient.mockRejectedValue(new Error("Connection failed"));
 
@@ -432,7 +433,7 @@ describe("MCP Integration Tests", () => {
       const mcpService = new MCPService();
       mockApp.addServices(mcpService);
 
-      const config = { type: "sse", url: "http://localhost:3000/test" };
+      const config = { type: "sse", url: "http://localhost:3000/test" } as const;
 
       const mockClient = {
         tools: vi.fn().mockRejectedValue(new Error("Tool retrieval failed")),
@@ -448,7 +449,7 @@ describe("MCP Integration Tests", () => {
       const mcpService = new MCPService();
       mockApp.addServices(mcpService);
 
-      const config = { type: "sse", url: "http://localhost:3000/test" };
+      const config = { type: "sse", url: "http://localhost:3000/test" } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
@@ -473,7 +474,7 @@ describe("MCP Integration Tests", () => {
         // Should not reach here
         expect(true).toBe(false);
       } catch (error) {
-        expect(error.message).toBe("Registration failed");
+        expect(error instanceof Error && error.message).toBe("Registration failed");
       } finally {
         mockChatService.registerTool = originalRegisterTool;
       }
@@ -507,7 +508,7 @@ describe("MCP Integration Tests", () => {
 
       mockedMcp.experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      const configs = [
+      const configs: MCPTransportConfig[] = [
         { type: "sse", url: "http://localhost:3001/sse" },
         { type: "http", url: "http://localhost:3002/http" },
         { type: "stdio", command: "server1" },
@@ -532,7 +533,7 @@ describe("MCP Integration Tests", () => {
             "server1": { type: "stdio", command: "server1" },
           },
         }
-      };
+      } as const;
 
       const config2 = {
         mcp: {
@@ -540,7 +541,7 @@ describe("MCP Integration Tests", () => {
             "server2": { type: "sse", url: "http://localhost:3000/server2" },
           },
         }
-      };
+      } as const;
 
       const mockClient = {
         tools: vi.fn().mockResolvedValue({
