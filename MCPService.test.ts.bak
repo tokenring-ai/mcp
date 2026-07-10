@@ -1,36 +1,36 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import { experimental_createMCPClient } from "@ai-sdk/mcp";
-import type TokenRingApp from "@tokenring-ai/app";
+import { afterEach,beforeEach,describe,expect,it,mock,spyOn } from "bun:test";
+import TokenRingApp from "@tokenring-ai/app";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
 import { ChatService } from "@tokenring-ai/chat";
 import { ChatServiceConfigSchema } from "@tokenring-ai/chat/schema";
 import MCPService from "./MCPService";
 
 // Mock the external dependencies
-void mock.module("@ai-sdk/mcp", () => ({
+mock.module("@ai-sdk/mcp", () => ({
   experimental_createMCPClient: mock(),
 }));
 
 // Mock transport classes with proper constructor mocking
-void mock.module("@modelcontextprotocol/sdk/client/sse.js", () => ({
+mock.module("@modelcontextprotocol/sdk/client/sse.js", () => ({
   SSEClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 }));
 
-void mock.module("@modelcontextprotocol/sdk/client/stdio.js", () => ({
+mock.module("@modelcontextprotocol/sdk/client/stdio.js", () => ({
   StdioClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 }));
 
-void mock.module("@modelcontextprotocol/sdk/client/streamableHttp.js", () => ({
+mock.module("@modelcontextprotocol/sdk/client/streamableHttp.js", () => ({
   StreamableHTTPClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 }));
 
 describe("MCPService", () => {
@@ -48,7 +48,7 @@ describe("MCPService", () => {
     // Create proper ChatService instance with required config
     const chatConfig = ChatServiceConfigSchema.parse({
       defaultModels: [],
-      agentDefaults: {},
+      agentDefaults: {}
     });
     mockChatService = new ChatService(mockApp, chatConfig);
 
@@ -74,7 +74,9 @@ describe("MCPService", () => {
     it("should throw error for unknown transport type", async () => {
       const unknownConfig = { type: "unknown" } as any;
 
-      expect(mcpService.register("test", unknownConfig, mockApp)).rejects.toThrow("Unknown connection type unknown");
+      await expect(mcpService.register("test", unknownConfig, mockApp))
+        .rejects
+        .toThrow("Unknown connection type unknown");
     });
 
     it("should handle stdio transport configuration", async () => {
@@ -83,8 +85,8 @@ describe("MCPService", () => {
           "test-tool": {
             inputSchema: { type: "object" },
             execute: mock(),
-            description: "Test tool description",
-          },
+            description: "Test tool description"
+          }
         }),
       };
 
@@ -100,8 +102,11 @@ describe("MCPService", () => {
 
       expect(mockChatService.registerTool).toHaveBeenCalledWith("test-server/test-tool", {
         name: "test-server/test-tool",
-        displayName: "test-tool",
-        tool: expect.any(Function),
+        tool: {
+          inputSchema: { type: "object" },
+          execute: expect.any(Function),
+          description: "Test tool description"
+        }
       });
     });
 
@@ -111,8 +116,8 @@ describe("MCPService", () => {
           "sse-tool": {
             inputSchema: { type: "object" },
             execute: mock(),
-            description: "SSE tool description",
-          },
+            description: "SSE tool description"
+          }
         }),
       };
 
@@ -127,8 +132,11 @@ describe("MCPService", () => {
 
       expect(mockChatService.registerTool).toHaveBeenCalledWith("sse-server/sse-tool", {
         name: "sse-server/sse-tool",
-        displayName: "sse-tool",
-        tool: expect.any(Function),
+        tool: {
+          inputSchema: { type: "object" },
+          execute: expect.any(Function),
+          description: "SSE tool description"
+        }
       });
     });
 
@@ -138,8 +146,8 @@ describe("MCPService", () => {
           "http-tool": {
             inputSchema: { type: "object" },
             execute: mock(),
-            description: "HTTP tool description",
-          },
+            description: "HTTP tool description"
+          }
         }),
       };
 
@@ -154,29 +162,32 @@ describe("MCPService", () => {
 
       expect(mockChatService.registerTool).toHaveBeenCalledWith("http-server/http-tool", {
         name: "http-server/http-tool",
-        displayName: "http-tool",
-        tool: expect.any(Function),
+        tool: {
+          inputSchema: { type: "object" },
+          execute: expect.any(Function),
+          description: "HTTP tool description"
+        }
       });
     });
 
     it("should register multiple tools with proper naming", async () => {
       const mockClient = {
         tools: mock().mockResolvedValue({
-          tool1: {
+          "tool1": {
             inputSchema: { type: "object", properties: { test: { type: "string" } } },
             execute: mock(),
-            description: "Tool 1 description",
+            description: "Tool 1 description"
           },
-          tool2: {
+          "tool2": {
             inputSchema: { type: "object", properties: { data: { type: "number" } } },
             execute: mock(),
-            description: "Tool 2 description",
+            description: "Tool 2 description"
           },
-          tool3: {
+          "tool3": {
             inputSchema: { type: "object" },
             execute: mock(),
-            description: "Tool 3 description",
-          },
+            description: "Tool 3 description"
+          }
         }),
       };
 
@@ -206,7 +217,9 @@ describe("MCPService", () => {
         url: "http://localhost:3000/mcp",
       } as const;
 
-      expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Connection failed");
+      await expect(mcpService.register("test-server", config, mockApp))
+        .rejects
+        .toThrow("Connection failed");
     });
 
     it("should handle tool retrieval failures", async () => {
@@ -221,7 +234,9 @@ describe("MCPService", () => {
         url: "http://localhost:3000/mcp",
       } as const;
 
-      expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Tool retrieval failed");
+      await expect(mcpService.register("test-server", config, mockApp))
+        .rejects
+        .toThrow("Tool retrieval failed");
     });
   });
 });

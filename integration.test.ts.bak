@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, mock, spyOn } from "bun:test";
 import createTestingApp from "@tokenring-ai/app/test/createTestingApp.test";
+import { afterEach,beforeEach,describe,expect,it,mock,spyOn } from "bun:test";
 import { ChatService } from "@tokenring-ai/chat";
 import { ChatServiceConfigSchema } from "@tokenring-ai/chat/schema";
-import type { MCPTransportConfig } from "./MCPService";
 import MCPService from "./MCPService";
+import type { MCPTransportConfig } from "./MCPService";
 import plugin from "./plugin";
 
 const mockedMcp = {
@@ -14,27 +14,27 @@ const mockedSSE = {
   SSEClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 };
 
 const mockedStdio = {
   StdioClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 };
 
 const mockedHttp = {
   StreamableHTTPClientTransport: mock().mockImplementation(function (this: any) {
     this.connect = mock();
     return this;
-  }),
+  })
 };
 
-void mock.module("@ai-sdk/mcp", () => mockedMcp);
-void mock.module("@modelcontextprotocol/sdk/client/sse.js", () => mockedSSE);
-void mock.module("@modelcontextprotocol/sdk/client/stdio.js", () => mockedStdio);
-void mock.module("@modelcontextprotocol/sdk/client/streamableHttp.js", () => mockedHttp);
+mock.module("@ai-sdk/mcp", () => mockedMcp);
+mock.module("@modelcontextprotocol/sdk/client/sse.js", () => mockedSSE);
+mock.module("@modelcontextprotocol/sdk/client/stdio.js", () => mockedStdio);
+mock.module("@modelcontextprotocol/sdk/client/streamableHttp.js", () => mockedHttp);
 
 describe("MCP Integration Tests", () => {
   let mockApp: any;
@@ -49,7 +49,7 @@ describe("MCP Integration Tests", () => {
     // Create proper ChatService instance with required config
     const chatConfig = ChatServiceConfigSchema.parse({
       defaultModels: [],
-      agentDefaults: {},
+      agentDefaults: {}
     });
     mockChatService = new ChatService(mockApp, chatConfig);
 
@@ -89,7 +89,7 @@ describe("MCP Integration Tests", () => {
               args: ["--config", "config.json"],
             },
           },
-        },
+        }
       } as const;
 
       // Mock MCP client and tools
@@ -125,21 +125,25 @@ describe("MCP Integration Tests", () => {
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(2);
 
       // Get the actual calls to verify structure
-      const calls = (mockChatService.registerTool as ReturnType<typeof mock>).mock.calls;
+      const calls = mockChatService.registerTool.mock.calls;
       const getDataCall = calls.find((call: any) => call[0] === "my-mcp-server/get-data");
       const listItemsCall = calls.find((call: any) => call[0] === "my-mcp-server/list-items");
 
       expect(getDataCall).toBeDefined();
-      expect(getDataCall![1].name).toBe("my-mcp-server/get-data");
-      expect(getDataCall![1].displayName).toBe("get-data");
-      expect(typeof getDataCall![1].tool).toBe("function");
-      expect(getDataCall![1].tool(undefined as never).description).toBe("Get data from MCP server");
+      expect(getDataCall![1]).toMatchObject({
+        name: "my-mcp-server/get-data",
+        tool: {
+          description: "Get data from MCP server",
+        },
+      });
 
       expect(listItemsCall).toBeDefined();
-      expect(listItemsCall![1].name).toBe("my-mcp-server/list-items");
-      expect(listItemsCall![1].displayName).toBe("list-items");
-      expect(typeof listItemsCall![1].tool).toBe("function");
-      expect(listItemsCall![1].tool(undefined as never).description).toBe("List available items");
+      expect(listItemsCall![1]).toMatchObject({
+        name: "my-mcp-server/list-items",
+        tool: {
+          description: "List available items",
+        },
+      });
     });
 
     it("should install plugin with SSE transport", async () => {
@@ -150,11 +154,11 @@ describe("MCP Integration Tests", () => {
               type: "sse",
               url: "http://localhost:3000/mcp-sse",
               headers: {
-                Authorization: "Bearer token123",
+                "Authorization": "Bearer token123",
               },
             },
           },
-        },
+        }
       } as const;
 
       const mockClient = {
@@ -177,12 +181,14 @@ describe("MCP Integration Tests", () => {
       await mcpService.register("remote-server", config.mcp.transports["remote-server"], mockApp);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
-      const call = (mockChatService.registerTool as ReturnType<typeof mock>).mock.calls[0];
+      const call = mockChatService.registerTool.mock.calls[0];
       expect(call![0]).toBe("remote-server/fetch-data");
-      expect(call![1].name).toBe("remote-server/fetch-data");
-      expect(call![1].displayName).toBe("fetch-data");
-      expect(typeof call![1].tool).toBe("function");
-      expect(call![1].tool(undefined as never).description).toBe("Fetch remote data");
+      expect(call![1]).toMatchObject({
+        name: "remote-server/fetch-data",
+        tool: {
+          description: "Fetch remote data",
+        },
+      });
     });
 
     it("should install plugin with HTTP transport", async () => {
@@ -198,7 +204,7 @@ describe("MCP Integration Tests", () => {
               },
             },
           },
-        },
+        }
       } as const;
 
       const mockClient = {
@@ -221,12 +227,14 @@ describe("MCP Integration Tests", () => {
       await mcpService.register("api-server", config.mcp.transports["api-server"], mockApp);
 
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(1);
-      const call = (mockChatService.registerTool as ReturnType<typeof mock>).mock.calls[0];
+      const call = mockChatService.registerTool.mock.calls[0];
       expect(call![0]).toBe("api-server/process-request");
-      expect(call![1].name).toBe("api-server/process-request");
-      expect(call![1].displayName).toBe("process-request");
-      expect(typeof call![1].tool).toBe("function");
-      expect(call![1].tool(undefined as never).description).toBe("Process API request");
+      expect(call![1]).toMatchObject({
+        name: "api-server/process-request",
+        tool: {
+          description: "Process API request",
+        },
+      });
     });
 
     it("should install plugin with multiple transports of different types", async () => {
@@ -246,12 +254,12 @@ describe("MCP Integration Tests", () => {
               url: "http://localhost:3001/api",
             },
           },
-        },
+        }
       } as const;
 
       const mockClient = {
         tools: mock().mockResolvedValue({
-          tool1: {
+          "tool1": {
             inputSchema: { type: "object" },
             execute: mock(),
             description: "Tool 1",
@@ -276,19 +284,19 @@ describe("MCP Integration Tests", () => {
         "local-server/tool1",
         expect.objectContaining({
           name: "local-server/tool1",
-        }),
+        })
       );
       expect(mockChatService.registerTool).toHaveBeenCalledWith(
         "remote-sse/tool1",
         expect.objectContaining({
           name: "remote-sse/tool1",
-        }),
+        })
       );
       expect(mockChatService.registerTool).toHaveBeenCalledWith(
         "api-http/tool1",
         expect.objectContaining({
           name: "api-http/tool1",
-        }),
+        })
       );
     });
   });
@@ -305,7 +313,7 @@ describe("MCP Integration Tests", () => {
 
       const mockClient = {
         tools: mock().mockResolvedValue({
-          calculate: {
+          "calculate": {
             inputSchema: {
               type: "object",
               properties: {
@@ -317,7 +325,7 @@ describe("MCP Integration Tests", () => {
             execute: mock(),
             description: "Perform calculations",
           },
-          format: {
+          "format": {
             inputSchema: {
               type: "object",
               properties: {
@@ -339,20 +347,24 @@ describe("MCP Integration Tests", () => {
       // Verify both tools were registered
       expect(mockChatService.registerTool).toHaveBeenCalledTimes(2);
 
-      const calls = (mockChatService.registerTool as ReturnType<typeof mock>).mock.calls;
+      const calls = mockChatService.registerTool.mock.calls;
       const calculateCall = calls.find((call: any) => call[0] === "calc-server/calculate");
       const formatCall = calls.find((call: any) => call[0] === "calc-server/format");
 
       expect(calculateCall).toBeDefined();
-      expect(calculateCall![1].name).toBe("calc-server/calculate");
-      expect(calculateCall![1].displayName).toBe("calculate");
-      expect(typeof calculateCall![1].tool).toBe("function");
-      expect(calculateCall![1].tool(undefined as never).description).toBe("Perform calculations");
+      expect(calculateCall![1]).toMatchObject({
+        name: "calc-server/calculate",
+        tool: {
+          description: "Perform calculations",
+        },
+      });
       expect(formatCall).toBeDefined();
-      expect(formatCall![1].name).toBe("calc-server/format");
-      expect(formatCall![1].displayName).toBe("format");
-      expect(typeof formatCall![1].tool).toBe("function");
-      expect(formatCall![1].tool(undefined as never).description).toBe("Format text");
+      expect(formatCall![1]).toMatchObject({
+        name: "calc-server/format",
+        tool: {
+          description: "Format text",
+        },
+      });
 
       // Verify the tool schemas are preserved
       expect(calculateCall![1].tool(undefined as never).inputSchema).toEqual({
@@ -412,7 +424,8 @@ describe("MCP Integration Tests", () => {
 
       mockedMcp.experimental_createMCPClient.mockRejectedValue(new Error("Connection failed"));
 
-      expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Connection failed");
+      await expect(mcpService.register("test-server", config, mockApp))
+        .rejects.toThrow("Connection failed");
     });
 
     it("should handle tool retrieval failure", async () => {
@@ -427,7 +440,8 @@ describe("MCP Integration Tests", () => {
 
       mockedMcp.experimental_createMCPClient.mockResolvedValue(mockClient);
 
-      expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Tool retrieval failed");
+      await expect(mcpService.register("test-server", config, mockApp))
+        .rejects.toThrow("Tool retrieval failed");
     });
 
     it("should handle chat service registration failure", async () => {
@@ -471,7 +485,8 @@ describe("MCP Integration Tests", () => {
 
       const config = { type: "unknown" } as any;
 
-      expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Unknown connection type unknown");
+      await expect(mcpService.register("test-server", config, mockApp))
+        .rejects.toThrow("Unknown connection type unknown");
     });
   });
 
@@ -482,7 +497,7 @@ describe("MCP Integration Tests", () => {
 
       const mockClient = {
         tools: mock().mockResolvedValue({
-          tool: {
+          "tool": {
             inputSchema: { type: "object" },
             execute: mock(),
             description: "Test tool",
@@ -499,7 +514,9 @@ describe("MCP Integration Tests", () => {
       ];
 
       // Use Promise.allSettled to handle individual promise rejections
-      const promises = configs.map(config => mcpService.register(`server-${Math.random()}`, config, mockApp));
+      const promises = configs.map(config =>
+        mcpService.register(`server-${Math.random()}`, config, mockApp)
+      );
 
       const results = await Promise.allSettled(promises);
 
@@ -512,22 +529,22 @@ describe("MCP Integration Tests", () => {
       const config1 = {
         mcp: {
           transports: {
-            server1: { type: "stdio", command: "server1" },
+            "server1": { type: "stdio", command: "server1" },
           },
-        },
+        }
       } as const;
 
       const config2 = {
         mcp: {
           transports: {
-            server2: { type: "sse", url: "http://localhost:3000/server2" },
+            "server2": { type: "sse", url: "http://localhost:3000/server2" },
           },
-        },
+        }
       } as const;
 
       const mockClient = {
         tools: mock().mockResolvedValue({
-          tool: { inputSchema: { type: "object" }, execute: mock(), description: "Tool" },
+          "tool": { inputSchema: { type: "object" }, execute: mock(), description: "Tool" },
         }),
       };
 
@@ -537,8 +554,8 @@ describe("MCP Integration Tests", () => {
       const mcpService = new MCPService();
       mockApp.addServices(mcpService);
 
-      const promise1 = mcpService.register("server1", config1.mcp.transports.server1, mockApp);
-      const promise2 = mcpService.register("server2", config2.mcp.transports.server2, mockApp);
+      const promise1 = mcpService.register("server1", config1.mcp.transports["server1"], mockApp);
+      const promise2 = mcpService.register("server2", config2.mcp.transports["server2"], mockApp);
 
       // Use Promise.allSettled for concurrent operations
       const results = await Promise.allSettled([promise1, promise2]);

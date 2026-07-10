@@ -20,16 +20,17 @@ describe("Configuration Schemas", () => {
             url: "http://localhost:3000/mcp",
           },
         },
-      } as const;
+      };
 
       const result = MCPConfigSchema.safeParse(validConfig);
       expect(result.success).toBe(true);
-      expect(result.data as any).toEqual(validConfig);
+      expect(result.data).toEqual(validConfig);
     });
 
-    it("should reject undefined config", () => {
+    it("should validate undefined config", () => {
       const result = MCPConfigSchema.safeParse(undefined);
-      expect(result.success).toBe(false);
+      expect(result.success).toBe(true);
+      expect(result.data).toBeUndefined();
     });
 
     it("should validate empty transports object", () => {
@@ -141,7 +142,7 @@ describe("Configuration Schemas", () => {
         type: "sse",
         url: "http://localhost:3000/sse",
         headers: {
-          Authorization: "Bearer token",
+          "Authorization": "Bearer token",
         },
         timeout: 5000,
       };
@@ -266,7 +267,7 @@ describe("Configuration Schemas", () => {
       const sseConfig = {
         type: "sse",
         url: "http://localhost:3000/sse",
-        headers: { Authorization: "Bearer token" },
+        headers: { "Authorization": "Bearer token" },
         timeout: 10000,
       };
 
@@ -329,7 +330,7 @@ describe("Configuration Schemas", () => {
             type: "sse",
             url: "http://localhost:3001/sse",
             headers: {
-              Authorization: "Bearer secret-token",
+              "Authorization": "Bearer secret-token",
             },
           },
           "http-server": {
