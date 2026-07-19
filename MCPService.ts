@@ -12,10 +12,10 @@ import { z } from "zod";
 export const MCPTransportConfigSchema = z.discriminatedUnion("type", [
   z.looseObject({
     type: z.literal("stdio"),
-    command: z.string(),
+    command: z.string().meta({ description: "Executable launched to run the MCP server over stdio" }),
   }),
-  z.object({ type: z.literal("sse"), url: z.url() }),
-  z.object({ type: z.literal("http"), url: z.url() }),
+  z.object({ type: z.literal("sse"), url: z.url().meta({ description: "SSE endpoint URL of the MCP server" }) }),
+  z.object({ type: z.literal("http"), url: z.url().meta({ description: "Streamable-HTTP endpoint URL of the MCP server" }) }),
 ]);
 
 export type MCPTransportConfig = z.infer<typeof MCPTransportConfigSchema>;
