@@ -717,7 +717,6 @@ bun run build
 - **MCPService.test.ts**: Unit tests for MCPService
 - **configuration.test.ts**: Configuration validation tests
 - **integration.test.ts**: Integration tests with TokenRing services
-- **vitest.config.ts**: Vitest configuration
 
 ### Contribution Guidelines
 
@@ -746,7 +745,7 @@ bun run build
 
 | Package    | Version | Purpose             |
 |------------|---------|---------------------|
-| vitest     | ^4.1.0  | Testing framework   |
+| bun test   | builtin  | Testing framework   |
 | typescript | ^5.9.3  | TypeScript compiler |
 
 ## Related Components
