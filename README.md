@@ -74,7 +74,7 @@ export const MCPConfigSchema = z
   .object({
     transports: z
       .record(z.string(), MCPTransportConfigSchema)
-      .meta({ description: "MCP servers to connect to, keyed by name. Changes require a restart.", restartRequired: true }),
+      .meta({ description: "MCP servers to connect to, keyed by name. Added, removed, or changed servers reconnect live on reconfigure." }),
   })
   .meta({ label: "MCP", description: "Model Context Protocol server connections" })
   .exactOptional();
@@ -89,7 +89,7 @@ export const MCPConfigSchema = z
 **Notes:**
 
 - Uses `.exactOptional()` to allow the config to be omitted entirely
-- The `transports` field requires a restart when changed
+- Transports are reconciled live on reconfigure (add, remove, or reconnect on change)
 - Each transport is keyed by a user-defined server name
 
 #### MCPTransportConfigSchema

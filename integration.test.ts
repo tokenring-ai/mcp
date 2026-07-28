@@ -65,16 +65,16 @@ describe("MCP Integration Tests", () => {
   });
 
   describe("Complete Plugin Installation", () => {
-    it("should install plugin without configuration", async () => {
-      // When no config.mcp, plugin should not add services
-      plugin.install(mockApp, {} as any);
+    it("should install plugin and register MCPService without config", async () => {
+      // install no longer takes config; service is always registered and configured later
+      plugin.install?.(mockApp);
 
-      expect(mockApp.getServices()).not.toContainEqual(expect.any(MCPService));
+      expect(mockApp.getServices()).toContainEqual(expect.any(MCPService));
     });
 
-    it("should install plugin with empty configuration", async () => {
-      // When config.mcp exists but has no transports, plugin should still add the service
-      plugin.install(mockApp, { mcp: { transports: {} } });
+    it("should reconfigure with empty transports without connecting", async () => {
+      plugin.install?.(mockApp);
+      plugin.reconfigure?.(mockApp, { mcp: { transports: {} } });
 
       expect(mockApp.getServices()).toContainEqual(expect.any(MCPService));
     });
@@ -423,11 +423,13 @@ describe("MCP Integration Tests", () => {
 
       const mockClient = {
         tools: mock().mockRejectedValue(new Error("Tool retrieval failed")),
+        close: mock().mockResolvedValue(undefined),
       };
 
       mockedMcp.experimental_createMCPClient.mockResolvedValue(mockClient);
 
       expect(mcpService.register("test-server", config, mockApp)).rejects.toThrow("Tool retrieval failed");
+      expect(mockClient.close).toHaveBeenCalled();
     });
 
     it("should handle chat service registration failure", async () => {
@@ -444,6 +446,7 @@ describe("MCP Integration Tests", () => {
             description: "Test tool",
           },
         }),
+        close: mock().mockResolvedValue(undefined),
       };
 
       mockedMcp.experimental_createMCPClient.mockResolvedValue(mockClient);

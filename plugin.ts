@@ -15,18 +15,11 @@ export default {
   version: packageJSON.version,
   description: packageJSON.description,
 
-  install(app, config) {
-    if (config.mcp) {
-      const mcpService = new MCPService();
-      app.addServices(mcpService);
-    }
+  install(app) {
+    app.addServices(new MCPService());
   },
-  async start(app, config) {
-    if (config.mcp) {
-      for (const [name, transportConfig] of Object.entries(config.mcp.transports)) {
-        await app.requireService(MCPService).register(name, transportConfig, app);
-      }
-    }
+  async reconfigure(app, config) {
+    await app.requireService(MCPService).reconfigure(config.mcp, app);
   },
   configSchema: packageConfigSchema,
 } satisfies TokenRingPlugin<typeof packageConfigSchema>;

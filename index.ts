@@ -5,7 +5,7 @@ export const MCPConfigSchema = z
   .object({
     transports: z
       .record(z.string(), MCPTransportConfigSchema)
-      .meta({ description: "MCP servers to connect to, keyed by name. Changes require a restart.", restartRequired: true }),
+      .meta({ description: "MCP servers to connect to, keyed by name. Added, removed, or changed servers reconnect live on reconfigure." }),
   })
   .meta({ label: "MCP", description: "Model Context Protocol server connections" })
   .exactOptional();
