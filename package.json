@@ -5,6 +5,7 @@
   "dependencies": {
     "@tokenring-ai/app": "workspace:*",
     "@tokenring-ai/chat": "workspace:*",
+    "@tokenring-ai/utility": "workspace:*",
     "@ai-sdk/mcp": "^2.0.13",
     "@modelcontextprotocol/sdk": "^1.29.0",
     "zod": "^4.4.3"

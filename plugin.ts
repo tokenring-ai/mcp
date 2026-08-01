@@ -16,7 +16,7 @@ export default {
   description: packageJSON.description,
 
   install(app) {
-    app.addServices(new MCPService());
+    app.addService(new MCPService());
   },
   async reconfigure(app, config) {
     await app.requireService(MCPService).reconfigure(config.mcp, app);

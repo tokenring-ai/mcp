@@ -68,7 +68,7 @@ describe("MCPService", () => {
     mockChatService = new ChatService(mockApp, chatConfig);
 
     // Register the ChatService with the app
-    mockApp.addServices(mockChatService);
+    mockApp.addService(mockChatService);
 
     // Spy on tool registry methods
     spyOn(mockChatService, "registerTool");
